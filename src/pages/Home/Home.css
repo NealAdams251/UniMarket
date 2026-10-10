@@ -43,14 +43,13 @@ input {
 .home-page {
     display: grid;
     grid-template-columns: 80px 220px minmax(0, 1fr);
-
     min-height: 100vh;
     width: 100%;
 }
 
 .title {
     margin: 20px 0px 0px 0px;
-    font-size: 60px;
+    font-size: 70px;
     font-weight: 800;
     color: var(--text-primary);
     letter-spacing: -1px;
@@ -58,7 +57,7 @@ input {
 
 
 .subtitle {
-    margin: 12px 0 0;
+    margin: 18px 0 0;
     color: var(--text-secondary);
     font-size: 14px;
 }
@@ -68,9 +67,7 @@ input {
 .home-main {
     min-width: 0;
     width: 100%;
-
     padding: 32px 50px 60px;
-
     background: var(--background);
 }
 
@@ -85,15 +82,12 @@ input {
 
 .search-box {
     width: 100%;
-
     display: flex;
     align-items: center;
     gap: 6px;
-
     padding: 8px 10px;
 
     background: var(--surface);
-
     border: 1px solid var(--border);
     border-radius: 10px;
 }
@@ -113,6 +107,7 @@ input {
 
 .filter-section {
     margin-top: 24px;
+    border-radius: 10px;
 }
 
 .filter-section h3 {
@@ -132,9 +127,9 @@ input {
 
     background: transparent;
     color: var(--text-secondary);
+    font-weight: 600;
 
     text-align: left;
-
     cursor: pointer;
 }
 
@@ -194,7 +189,7 @@ input {
     justify-content: center;
 }
 
-    .profile-text {
+.profile-text {
     display: flex;
     flex-direction: column;
     text-align: left;
@@ -202,7 +197,7 @@ input {
 
 .profile-name {
     color: var(--text-primary);
-    font-weight: 600;
+    font-weight: 800;
 }
 
 /* Home Header */
@@ -291,7 +286,7 @@ input {
 /* Image */
 .image-container {
     height: 200px;
-
+    
     position: relative;
 
     background: var(--muted);
@@ -302,34 +297,6 @@ input {
     height: 100%;
 
     object-fit: cover;
-}
-
-.favorite-button {
-    position: absolute;
-
-    top: 12px;
-    right: 12px;
-
-    width: 38px;
-    height: 38px;
-
-    border: none;
-    border-radius: 50%;
-
-    background: rgba(255, 255, 255, 0.92);
-
-    color: var(--text-primary);
-
-    font-size: 20px;
-
-    cursor: pointer;
-
-    transition: 0.2s ease;
-}
-
-.favorite-button:hover {
-    background: var(--muted);
-    color: white;
 }
 
 /* Listing Content */
@@ -368,11 +335,9 @@ input {
 .listing-image {
     width: 100%;
     height: 150px;
-
+    border: 1px solid var(--border);
     overflow: hidden;
-
     border-radius: 14px;
-
     background: var(--soft-gray);
 }
 
@@ -422,6 +387,7 @@ input {
     flex: 1;
     padding: 16px;
     background: var(--background);
+    border: 1px solid var(--border);
     border-radius: 12px;
 }
 
