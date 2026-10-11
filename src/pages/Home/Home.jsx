@@ -1,5 +1,8 @@
 import './Home.css'
 import Sidebar from '../../components/Sidebar/Sidebar'
+import ItemPage from '../ItemPage/ItemPage'
+import { useNavigate } from 'react-router-dom'
+import { useState } from 'react'
 
 const items = [
   {
@@ -37,6 +40,8 @@ const items = [
 ]
 
 function Home() {
+  const navigate = useNavigate()
+  const [selectedImage, setSelectedImage] = useState(null)
   return (
     <div className="home-page">
 
@@ -87,9 +92,11 @@ function Home() {
 
         <section className="items-list">
         {items.map((item) => (
-            <article className="listing-card" key={item.id}>
+            <article className="listing-card" key={item.id} onClick={() => navigate(`/item/${item.id}`)}>
                 <div className="listing-left">
-                    <div className="listing-image">
+                    <div className="listing-image" onClick={(e) => { e.stopPropagation() 
+                      setSelectedImage(item.image)}}>
+
                     <img src={item.image} alt={item.name} />
                     </div>
 
