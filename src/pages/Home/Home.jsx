@@ -94,7 +94,7 @@ function Home() {
 
         <section className="items-list">
         {items.map((item) => (
-            <article className="listing-card" key={item.id} onClick={() => navigate(`/item/${item.id}`)}>
+            <article className="listing-card" key={item.id} onClick={() => navigate(`/ItemPage/${item.id}`)}>
                 <div className="listing-left">
                     <div className="listing-image" onClick={(e) => { e.stopPropagation() 
                       setSelectedImage(item.image)}}>
