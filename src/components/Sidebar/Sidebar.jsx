@@ -8,7 +8,7 @@ function Sidebar() {
       </div>
 
       <nav className="sidebar-nav">
-        <button className="sidebar-item active"> button1 </button>
+        <button className="sidebar-item"> button1 </button>
         <button className="sidebar-item"> button2 </button>
         <button className="sidebar-item"> button3 </button>
         <button className="sidebar-item"> button4 </button>

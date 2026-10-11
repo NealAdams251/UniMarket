@@ -340,6 +340,7 @@ input {
     overflow: hidden;
     border-radius: 14px;
     background: var(--soft-gray);
+    cursor: zoom-in;
 }
 
 .listing-image img {
@@ -410,6 +411,45 @@ input {
     gap: 24px;
     margin: 22px 0px 0px 0px;
 }
+
+
+
+
+.image-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(2px);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    z-index: 1000;
+
+    padding: 30px;
+
+    cursor: pointer;
+}
+
+.image-modal img {
+    max-width: 90%;
+    max-height: 90vh;
+
+    object-fit: contain;
+
+    border-radius: 12px;
+
+    cursor: default;
+    border: 1px solid var(--border);
+}
+
+
+
+
+
+
+
 
 /* Mobile */
 @media (max-width: 700px) {

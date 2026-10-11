@@ -4,6 +4,9 @@ import ItemPage from '../ItemPage/ItemPage'
 import { useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 
+import examplePic from '../../assets/pencil.png'
+
+
 const items = [
   {
     id: 1,
@@ -11,7 +14,7 @@ const items = [
     price: 10,
     condition: 'Good',
     description: '23 giant frogs',
-    image: '',
+    image: examplePic,
   },
   {
     id: 2,
@@ -44,28 +47,27 @@ function Home() {
   const [selectedImage, setSelectedImage] = useState(null)
   return (
     <div className="home-page">
-
       <Sidebar />
       
-        <aside className="search-panel">
-    <div className="search-box">
-      <span className="search-icon">⌕</span>
+      <aside className="search-panel">
+        <div className="search-box">
+          <span className="search-icon">⌕</span>
 
-      <input
-        type="text"
-        placeholder="Search items..."
-      />
-    </div>
+          <input
+            type="text"
+            placeholder="Search items..."
+          />
+        </div>
 
-    <div className="filter-section">
-      <h3>Categories</h3>
-      <button>Category1</button>
-      <button>Category2</button>
-      <button>Category3</button>
-      <button>Category4</button>
-      <button>Category5</button>
-    </div>
-  </aside>
+        <div className="filter-section">
+          <h3>Categories</h3>
+          <button>Category1</button>
+          <button>Category2</button>
+          <button>Category3</button>
+          <button>Category4</button>
+          <button>Category5</button>
+        </div>
+      </aside>
 
       <main className="home-main">
         <h1 className="title">UniMarket</h1>
@@ -118,10 +120,22 @@ function Home() {
                 </div>
             </article>
         ))}
+
+        {selectedImage && (
+          <div
+            className="image-modal"
+            onClick={() => setSelectedImage(null)}
+          >
+            <img
+              src={selectedImage}
+              alt="Listing"
+              onClick={(e) => e.stopPropagation()}
+            />
+          </div>
+        )}
+
         </section>
-
       </main>
-
     </div>
   )
 }
