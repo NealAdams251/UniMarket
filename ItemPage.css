@@ -1,0 +1,57 @@
+html,
+body,
+#root {
+    width: 100%;
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+    font-family: "Montserrat", sans-serif;
+}
+
+    :root {
+    --primary: #5289AD;
+    --dark: #243C4C;
+    --muted: #698696;
+    --soft-gray: #ACBCBF;
+    --background: #F4FCFB;
+
+    --surface: #FFFFFF;
+    --text-primary: #243C4C;
+    --text-secondary: #698696;
+    --border: #ACBCBF;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: "Montserrat", sans-serif;
+    background: var(--background);
+    color: var(--text-primary);
+}
+
+
+.item-page {
+    display: grid;
+    grid-template-columns: 80px minmax(0, 1fr);
+
+    width: 100%;
+    min-height: 100vh;
+}
+
+
+.item-listing {
+    min-width: 0;
+    padding: 32px 50px;
+
+    background: var(--background);
+
+}
+
+.item-name {
+    color: var(--text-primary);
+    font-weight: 700;
+
+}
