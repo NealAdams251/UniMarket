@@ -45,50 +45,55 @@ const items = [
 function Home() {
   const navigate = useNavigate()
   const [selectedImage, setSelectedImage] = useState(null)
+  const [categoriesOpen, setCategoriesOpen] = useState(true)
   return (
-    <div className="home-page">
-      <Sidebar />
+    <div className={`home-page${categoriesOpen ? '' : ' search-panel-closed'}`}>
+      <Sidebar categoriesOpen={categoriesOpen} onToggleCategories={() => setCategoriesOpen(open => !open)} />
       
-      <aside className="search-panel">
-        <div className="search-box">
-          <span className="search-icon">⌕</span>
-
-          <input
-            type="text"
-            placeholder="Search items..."
-          />
-        </div>
+      <aside id="search-panel" className="search-panel" hidden={!categoriesOpen}>
+        
 
         <div className="filter-section">
-          <h3>Categories</h3>
-          <button>Category1</button>
-          <button>Category2</button>
-          <button>Category3</button>
-          <button>Category4</button>
-          <button>Category5</button>
+          <div className="categories-heading">
+            <h3>Categories</h3>
+          </div>
+          <div id="category-list" className="category-list">
+            <button>Category1</button>
+            <button>Category2</button>
+            <button>Category3</button>
+            <button>Category4</button>
+            <button>Category5</button>
+          </div>
         </div>
       </aside>
 
       <main className="home-main">
-        <h1 className="title">UniMarket</h1>
-        <p className="subtitle">Buy and sell with students on your campus</p>
 
+          
+
+        <section className="home-heading">
+          <div className="search-box marketplace-search">
+          <span className="search-icon">⌕</span>
+
+          <input
+            type="search" aria-label="Search items"
+            placeholder="Search items..."
+          />
+        </div>
+          <div>
+            <h2>UCI Marketplace</h2>
+            <p>Find what's near you.</p>
+          </div>
+
+          <button className="sell-button">
+            Sell Item
+          </button>
           <button className="profile-button">
             <span className="profile-icon">##</span>
 
             <div className="profile-text">
               <span className="profile-name">Name</span>
             </div>
-          </button>
-
-        <section className="home-heading">
-          <div>
-            <h2>Marketplace</h2>
-            <p>Find what's near you.</p>
-          </div>
-
-          <button className="sell-button">
-            Sell Item
           </button>
         </section>
 
