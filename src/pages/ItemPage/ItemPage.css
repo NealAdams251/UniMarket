@@ -55,3 +55,133 @@ body {
     font-weight: 700;
 
 }
+
+.item-content {
+    padding: 40px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.item-name {
+  font-size: 44px;
+  margin: 0 0 30px;
+}
+
+.item-details {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr);
+    gap: 40px;
+    align-items: start;
+}
+
+.item-left {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.item-image-container {
+    width: 100%;
+    height: 450px;
+    background-color: #f3f3f3;
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--border);
+}
+
+.item-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.item-right {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.item-card,
+.additional-info {
+    background-color: white;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+}
+
+.item-card h2,
+.additional-info h2 {
+    margin-top: 0;
+    color: var(--text-primary);
+}
+
+.item-price {
+    font-size: 34px;
+    font-weight: 700;
+    margin: 0;
+}
+
+.item-condition {
+    display: inline-block;
+    background-color: #eee;
+    padding: 8px 14px;
+    border-radius: 999px;
+    margin: 0;
+}
+
+.description-card p {
+    line-height: 1.6;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.info-row:last-child {
+    border-bottom: none;
+}
+
+.info-label {
+    font-weight: 700;
+}
+
+.message-button {
+    width: 100%;
+    margin-top: 20px;
+    padding: 14px 20px;
+
+    border: none;
+    border-radius: 10px;
+
+    background-color: #222;
+    color: white;
+
+    font-size: 16px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition: background-color 0.2s ease;
+}
+
+.message-button:hover {
+  background-color: #444;
+}
+
+@media (max-width: 900px) {
+  .item-details {
+    grid-template-columns: 1fr;
+  }
+
+  .item-image-container {
+    height: 350px;
+  }
+}
+
+
