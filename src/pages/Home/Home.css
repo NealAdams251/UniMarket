@@ -49,9 +49,10 @@ input {
 
 .title {
     margin: 20px 0px 0px 0px;
-    font-size: 70px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 72px;
     font-weight: 800;
-    color: var(--text-primary);
+    color: #FFD200;
     letter-spacing: -1px;
 }
 
@@ -508,4 +509,421 @@ input {
   .items-grid {
     grid-template-columns: 1fr;
   }
+}
+
+/* Campus background and centered marketplace panel */
+html, body {
+    background: #0064A4;
+    color-scheme: light;
+}
+#root {
+    width: 100%;
+    max-width: none;
+    border: 0;
+    background: #0064A4;
+}
+.home-page {
+    width: 82.5%;
+    margin: 48px auto;
+    min-height: 100vh;
+    background: #FFFFFF;
+    border-radius: 20px;
+    box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.5);
+    grid-template-columns: 80px 200px minmax(0, 1fr);
+}
+.home-page .sidebar {
+    height: auto;
+    min-height: 100%;
+    border-radius: 20px 0 0 20px;
+}
+.home-page .search-panel {
+    min-width: 0;
+    min-height: 0;
+    padding: 32px 18px;
+}
+.home-main {
+    background: #FFFFFF;
+    border-radius: 0 20px 20px 0;
+    padding: 32px clamp(18px, 2.5vw, 50px) 60px;
+}
+.home-main .title {
+    font-size: clamp(36px, 5vw, 72px);
+    line-height: 1.15;
+    overflow-wrap: anywhere;
+}
+.items-list {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr));
+}
+.listing-card {
+    grid-template-columns: minmax(100px, 0.85fr) minmax(0, 1fr);
+    gap: 18px;
+    padding: 16px;
+}
+.listing-left, .listing-right {
+    min-width: 0;
+}
+.listing-description {
+    background: #F4FCFB;
+    overflow-wrap: anywhere;
+}
+.listing-condition {
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.home-heading {
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 24px;
+}
+.sell-button {
+    position: static;
+    flex-shrink: 0;
+}
+@media (max-width: 1000px) {
+    .home-page {
+        grid-template-columns: 80px minmax(0, 1fr);
+    }
+    .home-page .sidebar {
+        grid-row: 1 / 3;
+    }
+    .home-page .search-panel {
+        border-right: 0;
+        border-bottom: 1px solid var(--border);
+        border-radius: 0 20px 0 0;
+    }
+    .filter-section {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 16px;
+    }
+    .filter-section h3 {
+        width: 100%;
+        margin: 0;
+    }
+    .filter-section button {
+        width: auto;
+        margin: 0;
+    }
+    .home-main {
+        border-radius: 0 0 20px 0;
+    }
+}
+@media (max-width: 700px) {
+    .home-page {
+        width: 92%;
+        margin: 24px auto;
+        grid-template-columns: minmax(0, 1fr);
+    }
+    .home-page .sidebar {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        grid-row: auto;
+        width: 100%;
+        min-width: 0;
+        min-height: 0;
+        padding: 16px;
+        border-radius: 20px 20px 0 0;
+    }
+    .home-page .sidebar-logo {
+        margin: 0;
+        flex-shrink: 0;
+    }
+    .home-page .sidebar-nav {
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    .home-page .search-panel {
+        border-radius: 0;
+        padding: 20px 18px;
+    }
+    .home-main {
+        border-radius: 0 0 20px 20px;
+    }
+    .home-heading {
+        flex-wrap: wrap;
+    }
+}
+@media (max-width: 480px) {
+    .listing-card {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+/* Center the campus heading above the white panel. */
+.marketplace-shell {
+    width: 100%;
+    padding-top: 48px;
+    padding-bottom: 48px;
+}
+.marketplace-header {
+    width: 82.5%;
+    margin: 0 auto 48px;
+    text-align: center;
+}
+.marketplace-header .title {
+    margin: 0;
+    font-size: clamp(36px, 5vw, 72px);
+    line-height: 1.15;
+    overflow-wrap: anywhere;
+}
+.marketplace-header .subtitle {
+    margin: 18px 0 0;
+    color: #FFFFFF;
+}
+.marketplace-shell .home-page {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+@media (max-width: 700px) {
+    .marketplace-shell {
+        padding-top: 32px;
+        padding-bottom: 24px;
+    }
+    .marketplace-header {
+        width: 92%;
+        margin-bottom: 32px;
+    }
+}
+/* Center the section heading independently of the sell action. */
+.home-heading {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: center;
+}
+.home-heading > div {
+    grid-column: 2;
+    text-align: center;
+}
+.home-heading .sell-button {
+    grid-column: 3;
+    justify-self: end;
+}
+@media (max-width: 700px) {
+    .home-heading {
+        grid-template-columns: minmax(0, 1fr);
+    }
+    .home-heading > div,
+    .home-heading .sell-button {
+        grid-column: 1;
+        justify-self: center;
+    }
+}
+/* Vertically center the heading in the space above the listings. */
+.home-main {
+    position: relative;
+}
+.home-main > .profile-button {
+    position: absolute;
+    top: 16px;
+    right: clamp(18px, 2.5vw, 50px);
+}
+.home-heading {
+    margin-top: 0;
+    min-height: 160px;
+    align-content: center;
+}
+@media (max-width: 700px) {
+    .home-main > .profile-button {
+        position: static;
+        margin-left: auto;
+    }
+    .home-heading {
+        min-height: 160px;
+        gap: 16px;
+    }
+}
+/* Categories are open initially and toggled with the menu button. */
+.filter-section { display: block; }
+.categories-heading {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+.categories-heading h3 {
+    width: auto;
+    margin: 0;
+}
+.filter-section .categories-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    margin: 0;
+    flex-shrink: 0;
+    color: var(--text-primary);
+    font-size: 24px;
+}
+.categories-toggle:focus-visible {
+    outline: 2px solid #0064A4;
+    outline-offset: 3px;
+}
+.category-list[hidden] { display: none; }
+@media (max-width: 1000px) {
+    .category-list:not([hidden]) {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+}
+/* Search beside the centered campus heading. */
+.home-heading {
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+}
+.home-heading > .marketplace-search {
+    grid-column: 1;
+    grid-row: 1;
+    justify-self: start;
+    width: min(100%, 240px);
+    text-align: left;
+}
+.home-heading > div:not(.marketplace-search) {
+    grid-column: 2;
+    grid-row: 1;
+}
+.home-heading .sell-button {
+    grid-column: 3;
+    grid-row: 1;
+}
+@media (max-width: 1100px) {
+    .home-heading {
+        grid-template-columns: minmax(0, 1fr) auto;
+    }
+    .home-heading > div:not(.marketplace-search) {
+        grid-column: 1 / -1;
+        grid-row: 1;
+        justify-self: center;
+    }
+    .home-heading > .marketplace-search {
+        grid-column: 1;
+        grid-row: 2;
+    }
+    .home-heading .sell-button {
+        grid-column: 2;
+        grid-row: 2;
+    }
+}
+@media (max-width: 480px) {
+    .home-heading {
+        grid-template-columns: minmax(0, 1fr);
+    }
+    .home-heading > .marketplace-search {
+        width: 100%;
+    }
+    .home-heading .sell-button {
+        grid-column: 1;
+        grid-row: 3;
+        justify-self: center;
+    }
+}
+/* Campus heading, then search, then sell action. */
+.home-heading {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 24px;
+}
+.home-heading > div:not(.marketplace-search) {
+    grid-column: 1;
+    grid-row: 1;
+    justify-self: start;
+    text-align: left;
+}
+.home-heading > .marketplace-search {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: start;
+    width: min(100%, 280px);
+}
+.home-heading .sell-button {
+    grid-column: 3;
+    grid-row: 1;
+    justify-self: end;
+}
+@media (max-width: 1100px) {
+    .home-heading {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        gap: 16px;
+    }
+    .home-heading .sell-button {
+        grid-column: 2;
+        grid-row: 2;
+    }
+}
+@media (max-width: 700px) {
+    .home-heading {
+        grid-template-columns: minmax(0, 1fr);
+    }
+    .home-heading > div:not(.marketplace-search) {
+        grid-column: 1;
+        grid-row: 1;
+    }
+    .home-heading > .marketplace-search {
+        grid-column: 1;
+        grid-row: 2;
+        width: 100%;
+    }
+    .home-heading .sell-button {
+        grid-column: 1;
+        grid-row: 3;
+        justify-self: start;
+    }
+}
+/* Keep both actions aligned with search at the far right. */
+.home-heading {
+    grid-template-columns: auto minmax(120px, 1fr) auto auto;
+    align-items: center;
+}
+.home-heading .sell-button {
+    grid-column: 3;
+    grid-row: 1;
+    position: static;
+    justify-self: end;
+}
+.home-heading .profile-button {
+    grid-column: 4;
+    grid-row: 1;
+    position: static;
+    margin: 0;
+    justify-self: end;
+}
+@media (max-width: 1100px) {
+    .home-heading {
+        grid-template-columns: minmax(0, 1fr) auto auto;
+    }
+    .home-heading > div:not(.marketplace-search) {
+        grid-column: 1 / -1;
+        grid-row: 1;
+    }
+    .home-heading > .marketplace-search {
+        grid-column: 1;
+        grid-row: 2;
+    }
+    .home-heading .sell-button {
+        grid-column: 2;
+        grid-row: 2;
+    }
+    .home-heading .profile-button {
+        grid-column: 3;
+        grid-row: 2;
+    }
+}
+@media (max-width: 480px) {
+    .home-heading {
+        grid-template-columns: minmax(0, 1fr) auto;
+    }
+    .home-heading > .marketplace-search {
+        grid-column: 1 / -1;
+        grid-row: 2;
+    }
+    .home-heading .sell-button {
+        grid-column: 1;
+        grid-row: 3;
+    }
+    .home-heading .profile-button {
+        grid-column: 2;
+        grid-row: 3;
+    }
 }
