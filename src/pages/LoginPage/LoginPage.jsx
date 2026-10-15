@@ -3,14 +3,14 @@ import { useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 import { useParams } from 'react-router-dom'
 
-import { placeholderUser } from '../../data/placeholderUser'
+import { placeholderUsers } from '../../data/placeholderUsers'
 
 
 function Login({ setCurrentUser }) {
   const navigate = useNavigate()
 
   function handleLogin() {
-    setCurrentUser(placeholderUser)
+    setCurrentUser(placeholderUsers.find((user) => user.uid === 'user-001'))
     navigate('/')
   }
 

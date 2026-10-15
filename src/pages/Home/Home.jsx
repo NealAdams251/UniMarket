@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 
 import examplePic from '../../assets/pencil.png'
-import { placeholderUser } from '../../data/placeholderUser'
+import { placeholderUsers } from '../../data/placeholderUsers'
 
 
 const items = [
@@ -48,9 +48,6 @@ function Home({ currentUser, setCurrentUser }) {
   const [selectedImage, setSelectedImage] = useState(null)
   const [categoriesOpen, setCategoriesOpen] = useState(true)
   const [profileOpen, setProfileOpen] = useState(false)
-
-  //const currentUser = null // Replace with actual user data when available 
-
 
   return (
     <div className={`home-page${categoriesOpen ? '' : ' search-panel-closed'}`}>

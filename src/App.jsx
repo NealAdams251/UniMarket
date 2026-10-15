@@ -22,7 +22,7 @@ function MarketplaceLayout() {
       <Routes>
         <Route path="/" element={<Home currentUser={currentUser} setCurrentUser={setCurrentUser} />} />
         <Route path="/ItemPage/:id" element={<ItemPage />} />
-        <Route path="/profile/:userid" element={<ProfilePage />} />
+        <Route path="/profile/:uid" element={<ProfilePage />} />
         <Route path="/login" element={<Login setCurrentUser={setCurrentUser} />} />
       </Routes>
     </div>
