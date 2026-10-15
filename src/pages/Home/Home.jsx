@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 
 import examplePic from '../../assets/pencil.png'
+import { placeholderUser } from '../../data/placeholderUser'
 
 
 const items = [
@@ -42,10 +43,15 @@ const items = [
   },
 ]
 
-function Home() {
+function Home({ currentUser, setCurrentUser }) {
   const navigate = useNavigate()
   const [selectedImage, setSelectedImage] = useState(null)
   const [categoriesOpen, setCategoriesOpen] = useState(true)
+  const [profileOpen, setProfileOpen] = useState(false)
+
+  //const currentUser = null // Replace with actual user data when available 
+
+
   return (
     <div className={`home-page${categoriesOpen ? '' : ' search-panel-closed'}`}>
       <Sidebar categoriesOpen={categoriesOpen} onToggleCategories={() => setCategoriesOpen(open => !open)} />
@@ -69,32 +75,63 @@ function Home() {
 
       <main className="home-main">
 
-          
-
         <section className="home-heading">
           <div className="search-box marketplace-search">
-          <span className="search-icon">⌕</span>
+            <span className="search-icon">⌕</span>
 
-          <input
-            type="search" aria-label="Search items"
-            placeholder="Search items..."
-          />
-        </div>
+            <input
+              type="search" aria-label="Search items"
+              placeholder="Search items..."
+            />
+
+          </div>
           <div>
-            <h2>UCI Marketplace</h2>
-            <p>Find what's near you.</p>
+              <h2>UCI Marketplace</h2>
+              <p>Find what's near you.</p>
           </div>
 
-          <button className="sell-button">
-            Sell Item
-          </button>
-          <button className="profile-button">
-            <span className="profile-icon">##</span>
+        <div className="header-buttons">
+          {currentUser ? (
+            <>
+            <button className="sell-button"> Sell Item </button>
 
-            <div className="profile-text">
-              <span className="profile-name">Name</span>
-            </div>
-          </button>
+            <div className="profile-menu">
+              <button className="profile-button" onClick={() => setProfileOpen(!profileOpen)}>
+                <span className="profile-icon">##</span>
+
+                <div className="profile-text">
+                  <span className="profile-name">{currentUser.name}</span>
+                </div>
+              </button>
+
+                {profileOpen && (
+                  <div className="profile-dropdown">
+                    <button onClick={() => navigate(`/profile/${currentUser.uid}`)}>
+                      View Profile
+                    </button>
+
+                    <button onClick={() => navigate('/settings')}>
+                      Settings
+                    </button>
+
+                    <button className="logout-button" onClick={() => {
+                        setCurrentUser(null)
+                        setProfileOpen(false)}}>
+                      Log Out
+                    </button>
+                  </div>
+                )}
+              </div>
+
+            </>
+            ) : (
+              <div className="signup-buttons">
+                <button className="login-button" onClick={() => navigate('/signup')}>Sign Up</button>
+                <button className="login-button" onClick={() => navigate('/login')}>Log In</button>
+              </div>
+            )}
+          </div>
+
         </section>
 
         <section className="items-list">

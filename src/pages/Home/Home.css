@@ -174,7 +174,6 @@ input {
     cursor: pointer;
 
     transition: 0.2s ease;
-    margin-left: auto;
 }
 
 .profile-icon {
@@ -232,7 +231,7 @@ input {
 
 /* Sell Button */
 .sell-button {
-    position: absolute;
+    position: static;
     right: 0;
     border: none;
     border-radius: 12px;
@@ -441,7 +440,6 @@ input {
     cursor: default;
     border: 1px solid var(--border);
 }
-
 
 
 /* Mobile */
@@ -889,6 +887,90 @@ html, body {
     margin: 0;
     justify-self: end;
 }
+
+.header-buttons {
+  position: absolute;
+  right: 0;
+
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.signup-buttons{
+    gap: 8px;
+    display: flex;
+}
+
+
+.profile-menu {
+    position: relative;
+}
+
+.profile-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+
+    width: 170px;
+
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+
+    padding: 8px;
+
+    box-shadow: 0 8px 24px rgba(36, 60, 76, 0.15);
+
+    z-index: 100;
+}
+
+.profile-dropdown button {
+    width: 100%;
+
+    padding: 10px 12px;
+
+    border: none;
+    border-radius: 8px;
+
+    background: transparent;
+    color: var(--text-primary);
+
+    text-align: left;
+    cursor: pointer;
+}
+
+.profile-dropdown button:hover {
+    background: var(--background);
+}
+
+.profile-dropdown .logout-button {
+    color: #b33a3a;
+}
+
+.login-button {
+    border: none;
+    border-radius: 12px;
+
+    padding: 12px 20px;
+
+    background: var(--primary);
+    color: var(--surface);
+
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.heading-actions {
+  position: absolute;
+  right: 0;
+
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+
 @media (max-width: 1100px) {
     .home-heading {
         grid-template-columns: minmax(0, 1fr) auto auto;
