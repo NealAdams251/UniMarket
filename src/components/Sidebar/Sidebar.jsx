@@ -1,5 +1,6 @@
 import { useLocation, useNavigate } from 'react-router-dom'
 import './Sidebar.css'
+import uciLogo from "../../assets/uci-logo.png";
 
 function Sidebar({ categoriesOpen, onToggleCategories }) {
   const { pathname } = useLocation()
@@ -27,8 +28,8 @@ function Sidebar({ categoriesOpen, onToggleCategories }) {
           </button>
         )}
         <div className="sidebar-logo">
-        logo
-      </div>
+          <img src={uciLogo} alt="UCI" />
+        </div>
 
       </div>
       <nav className="sidebar-nav">

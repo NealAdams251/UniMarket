@@ -926,4 +926,114 @@ html, body {
         grid-column: 2;
         grid-row: 3;
     }
+}/* ---- Results bar: item count + sort dropdown ---- */
+.results-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+}
+.results-count {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 14px;
+    font-weight: 600;
+}
+.results-clear {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: #0064A4;
+    font: inherit;
+    font-size: 13px;
+    text-decoration: underline;
+    cursor: pointer;
+}
+.sort-control {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-secondary);
+    font-size: 14px;
+}
+.sort-control select {
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface);
+    color: var(--text-primary);
+    font: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+.sort-control select:focus-visible,
+.listing-card:focus-visible {
+    outline: 2px solid #0064A4;
+    outline-offset: 2px;
+}
+.results-message {
+    margin: 40px auto;
+    max-width: 360px;
+    text-align: center;
+    color: var(--text-secondary);
+}
+.results-message h3 {
+    margin: 0 0 8px;
+    color: var(--text-primary);
+}
+.results-message .sell-button {
+    margin-top: 16px;
+}
+
+/* ---- Listing card details ---- */
+.listing-image:not(:has(img)) {
+    cursor: pointer;
+}
+.listing-description p {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+.listing-meta {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 13px;
+    text-align: left;
+}
+
+/* Search bar fills the row; Sell Item + profile sit on the right. */
+.home-heading.home-heading {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    min-height: 120px;
+}
+.home-heading > .marketplace-search.marketplace-search {
+    flex: 1;
+    width: auto;
+    padding: 12px 14px;
+}
+.marketplace-search input {
+    font-size: 15px;
+}
+.home-heading .sell-button {
+    flex-shrink: 0;
+}
+@media (max-width: 700px) {
+    .home-heading.home-heading {
+        flex-wrap: wrap;
+        min-height: 0;
+        padding: 8px 0 16px;
+    }
+    .home-heading > .marketplace-search.marketplace-search {
+        flex-basis: 100%;
+    }
 }

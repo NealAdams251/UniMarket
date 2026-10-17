@@ -1,0 +1,93 @@
+.profile-menu {
+    position: relative;
+}
+
+/* Doubled class so these placements beat the existing
+   ".home-heading > div:not(.marketplace-search)" rules in Home.css. */
+.home-heading > .profile-menu.profile-menu {
+    grid-column: 4;
+    grid-row: 1;
+    justify-self: end;
+    text-align: left;
+}
+
+.profile-menu .profile-icon {
+    color: #FFFFFF;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.profile-caret {
+    color: var(--text-secondary);
+    font-size: 14px;
+    transition: transform 0.15s ease;
+}
+
+.profile-caret.open {
+    transform: rotate(180deg);
+}
+
+.profile-menu .profile-button:focus-visible {
+    outline: 2px solid #0064A4;
+    outline-offset: 2px;
+}
+
+.profile-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    z-index: 50;
+    min-width: 200px;
+    margin: 0;
+    padding: 6px;
+    list-style: none;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    box-shadow: 0 12px 28px rgba(36, 60, 76, 0.18);
+}
+
+.profile-dropdown button {
+    display: block;
+    width: 100%;
+    padding: 10px 12px;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--text-primary);
+    font: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    text-align: left;
+    cursor: pointer;
+}
+
+.profile-dropdown button:hover,
+.profile-dropdown button:focus-visible {
+    background: var(--background);
+    outline: none;
+}
+
+.profile-dropdown .danger {
+    color: #B42318;
+}
+
+.profile-divider {
+    height: 1px;
+    margin: 6px 4px;
+    background: var(--border);
+}
+
+@media (max-width: 1100px) {
+    .home-heading > .profile-menu.profile-menu {
+        grid-column: 3;
+        grid-row: 2;
+    }
+}
+
+@media (max-width: 480px) {
+    .home-heading > .profile-menu.profile-menu {
+        grid-column: 2;
+        grid-row: 3;
+    }
+}
