@@ -4,6 +4,7 @@ import { useParams } from 'react-router-dom'
 import Sidebar from '../../components/Sidebar/Sidebar'
 
 import examplePic from '../../assets/pencil.png'
+import { categories } from '../../data/categories'
 
 function ItemPage() {
   const { id } = useParams()
@@ -17,7 +18,7 @@ function ItemPage() {
     condition: 'Good',
     description:
       'PLACEHOLDER DESCRIPTION.',
-    category: 'Category 1',
+    category: 'School Supplies',
     location: 'Anteatery',
     seller: 'Student1',
     date: '10/11/2026'
@@ -41,11 +42,9 @@ function ItemPage() {
             <h3>Categories</h3>
           </div>
           <div id="category-list" className="category-list">
-            <button>Category1</button>
-            <button>Category2</button>
-            <button>Category3</button>
-            <button>Category4</button>
-            <button>Category5</button>
+            {categories.map(category => (
+              <button key={category}>{category}</button>
+            ))}
           </div>
         </div>
       </aside>

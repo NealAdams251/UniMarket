@@ -1009,3 +1009,69 @@ html, body {
         grid-row: 3;
     }
 }
+/* Full-width search with actions on the right (no section heading). */
+.home-heading {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    min-height: 0;
+    margin-bottom: 8px;
+}
+.home-heading > .marketplace-search {
+    flex: 1;
+    width: auto;
+    padding: 12px 14px;
+}
+.home-heading > .marketplace-search input {
+    font-size: 15px;
+}
+.home-heading .header-buttons {
+    position: static;
+    flex-shrink: 0;
+}
+@media (max-width: 700px) {
+    .home-heading {
+        flex-wrap: wrap;
+    }
+    .home-heading > .marketplace-search {
+        flex-basis: 100%;
+    }
+}
+
+/* Category, price and sort filters. */
+.search-panel {
+    text-align: left;
+}
+.filter-section button.active {
+    background: #0064A4;
+    color: var(--surface);
+}
+.price-range {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--text-secondary);
+}
+.price-range input {
+    width: 100%;
+    min-width: 0;
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 13px;
+    color: var(--text-primary);
+}
+.price-range input:focus {
+    outline: 2px solid #0064A4;
+    outline-offset: 1px;
+}
+.no-results {
+    grid-column: 1 / -1;
+    color: var(--text-secondary);
+}
+@media (max-width: 1000px) {
+    .price-range {
+        width: 100%;
+        max-width: 240px;
+    }
+}
