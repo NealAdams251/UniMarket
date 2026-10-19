@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom'
 // Profile button with a dropdown menu. Closes on outside click or Escape.
 import { useEffect, useRef, useState } from 'react'
 import './ProfileMenu.css'
@@ -9,10 +10,10 @@ const MENU_ITEMS = [
   { label: 'Settings', action: 'settings' },
 ]
 
-function ProfileMenu({ name = 'Guest', onSelect = () => {} }) {
+function ProfileMenu({ name = 'Sign Up/Log In', onSelect = () => {}, isAuthenticated = false }) {
+  const navigate = useNavigate()
   const [open, setOpen] = useState(false)
   const wrapperRef = useRef(null)
-  const initials = name.split(' ').map((part) => part[0]).join('').slice(0, 2).toUpperCase()
 
   useEffect(() => {
     if (!open) return
@@ -40,18 +41,21 @@ function ProfileMenu({ name = 'Guest', onSelect = () => {} }) {
       <button
         type="button"
         className="profile-button"
-        aria-haspopup="menu"
-        aria-expanded={open}
-        onClick={() => setOpen((o) => !o)}
+        aria-haspopup={isAuthenticated ? 'menu' : undefined}
+        aria-expanded={isAuthenticated ? open : undefined}
+        onClick={() => {
+          if (isAuthenticated) setOpen((o) => !o)
+          else navigate('/login')
+        }}
       >
-        <span className="profile-icon" aria-hidden="true">{initials}</span>
         <span className="profile-text">
           <span className="profile-name">{name}</span>
         </span>
-        <span className={`profile-caret${open ? ' open' : ''}`} aria-hidden="true">▾</span>
+        {isAuthenticated && <span className={`profile-caret${open ? ' open' : ''}`} aria-hidden="true">▾</span>}
       </button>
 
-      {open && (
+      {/* Retained for future authenticated profile actions. */}
+      {isAuthenticated && open && (
         <ul className="profile-dropdown" role="menu">
           {MENU_ITEMS.map((item) => (
             <li key={item.action} role="none">
@@ -60,12 +64,14 @@ function ProfileMenu({ name = 'Guest', onSelect = () => {} }) {
               </button>
             </li>
           ))}
+          {/* Enable once authenticated sign-out is implemented.
           <li role="separator" className="profile-divider" />
           <li role="none">
             <button type="button" role="menuitem" className="danger" onClick={() => choose('signout')}>
               Sign out
             </button>
           </li>
+          */}
         </ul>
       )}
     </div>

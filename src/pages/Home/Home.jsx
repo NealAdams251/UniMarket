@@ -59,7 +59,7 @@ function Home() {
           <button type="button" className="sell-button">Sell Item</button>
 
           {/* TODO: pass the signed-in user's name from Supabase auth */}
-          <ProfileMenu name="Peter Anteater" />
+          <ProfileMenu />
         </section>
 
         <div className="results-bar">
