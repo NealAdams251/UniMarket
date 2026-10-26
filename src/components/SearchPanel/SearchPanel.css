@@ -1,0 +1,98 @@
+/* Selected category */
+.search-panel .filter-section button.active {
+    background: var(--primary);
+    color: #FFFFFF;
+}
+
+.search-panel .filter-section button:focus-visible,
+.clear-filters:focus-visible {
+    outline: 2px solid #0064A4;
+    outline-offset: 2px;
+}
+
+/* Condition + price filters */
+.filter-group {
+    margin-top: 22px;
+    text-align: left;
+}
+
+.filter-label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--text-primary);
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.filter-select,
+.price-range input {
+    width: 100%;
+    min-width: 0;
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface);
+    color: var(--text-primary);
+    font: inherit;
+    font-size: 13px;
+}
+
+.filter-select:focus-visible,
+.price-range input:focus-visible {
+    outline: 2px solid #0064A4;
+    outline-offset: 1px;
+}
+
+.price-range {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--text-secondary);
+}
+
+.clear-filters {
+    width: 100%;
+    margin-top: 22px;
+    padding: 9px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: transparent;
+    color: var(--text-primary);
+    font: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.clear-filters:hover {
+    background: var(--background);
+}
+
+.search-panel form.search-box {
+    margin: 0;
+}
+
+@media (max-width: 1000px) {
+    .search-panel .filter-group {
+        display: inline-block;
+        width: auto;
+        margin: 16px 16px 0 0;
+        vertical-align: top;
+    }
+    .search-panel .clear-filters {
+        width: auto;
+    }
+}
+
+.search-panel { text-align: left; }
+
+@media (max-width: 1000px) {
+    .search-panel .filter-group { min-width: 180px; }
+}
+@media (max-width: 700px) {
+    .search-panel .filter-group {
+        display: block;
+        width: 100%;
+        margin-right: 0;
+    }
+}

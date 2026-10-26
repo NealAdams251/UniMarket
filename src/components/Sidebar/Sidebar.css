@@ -95,3 +95,9 @@
         display: none;
     }
 }
+
+.sidebar-logo img {
+    height: 44px;
+    width: auto;
+    display: block;
+}

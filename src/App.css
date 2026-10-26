@@ -392,3 +392,7 @@ html, body, #root {
   .item-page:not(.search-panel-closed) .sidebar { grid-row: auto; }
   .item-page .search-panel { padding: 20px 18px; }
 }
+/* Keep shared header centering identical on long and short pages. */
+html {
+  overflow-y: scroll;
+}

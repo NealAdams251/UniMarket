@@ -1,0 +1,22 @@
+.listing-image-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    background: linear-gradient(135deg, #DDE8EC, #C4D4DA);
+    color: var(--text-primary);
+    text-align: center;
+}
+
+.listing-image-placeholder span {
+    font-weight: 700;
+    font-size: 15px;
+}
+
+.listing-image-placeholder small {
+    color: var(--text-secondary);
+    font-size: 12px;
+}

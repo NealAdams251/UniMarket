@@ -185,3 +185,92 @@ body {
 }
 
 
+
+/* ---- Back link, status, gallery, badges ---- */
+.back-link {
+    display: inline-block;
+    margin-bottom: 16px;
+    padding: 6px 0;
+    border: 0;
+    background: none;
+    color: #0064A4;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+.back-link:hover { text-decoration: underline; }
+.back-link:focus-visible,
+.message-button:focus-visible,
+.item-thumbnails button:focus-visible {
+    outline: 2px solid #0064A4;
+    outline-offset: 2px;
+}
+.item-content { text-align: left; }
+.item-status {
+    padding: 40px 0;
+    color: var(--text-secondary);
+}
+.item-image-container.zoomable { cursor: zoom-in; }
+.item-thumbnails {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+.item-thumbnails button {
+    width: 72px;
+    height: 72px;
+    padding: 0;
+    overflow: hidden;
+    border: 2px solid transparent;
+    border-radius: 10px;
+    background: var(--background);
+    cursor: pointer;
+}
+.item-thumbnails button.active { border-color: var(--primary); }
+.item-thumbnails img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.info-row {
+    gap: 16px;
+    text-align: right;
+}
+.info-row .info-label { text-align: left; }
+.verified-badge {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: #E8F1F8;
+    color: #0064A4;
+    font-size: 12px;
+    font-weight: 700;
+}
+.message-button {
+    background-color: #0064A4;
+}
+.message-button:hover { background-color: #004E80; }
+.message-button:disabled {
+    background-color: var(--soft-gray);
+    cursor: default;
+}
+.safety-tip {
+    margin: 12px 0 0;
+    color: var(--text-secondary);
+    font-size: 13px;
+}
+@media (max-width: 700px) {
+    .item-content { padding: 22px 18px; }
+    .item-name { font-size: 30px; }
+}
+/* On narrow screens show price + Message right after the photo. */
+@media (max-width: 900px) {
+    .item-details { gap: 20px; }
+    .item-left { display: contents; }
+    .item-image-container { order: 1; }
+    .item-thumbnails { order: 2; }
+    .item-right { order: 3; }
+    .additional-info { order: 4; }
+}
