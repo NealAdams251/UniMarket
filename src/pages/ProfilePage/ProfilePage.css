@@ -178,3 +178,93 @@
     grid-template-columns: 1fr;
   }
 }
+
+.profile-listings {
+    margin-top: 32px;
+}
+ 
+.profile-listings h3 {
+    margin: 0 0 14px;
+ 
+    color: var(--text-primary);
+}
+ 
+.profile-listings-empty {
+    margin: 0;
+ 
+    color: var(--text-secondary);
+}
+ 
+.profile-listings-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+ 
+    gap: 16px;
+}
+ 
+.profile-listing {
+    display: flex;
+    flex-direction: column;
+ 
+    overflow: hidden;
+ 
+    border: 1px solid var(--border);
+    border-radius: 12px;
+ 
+    background: var(--surface);
+    color: var(--text-primary);
+ 
+    text-decoration: none;
+ 
+    transition: 0.2s ease;
+}
+ 
+.profile-listing:hover {
+    border-color: var(--primary);
+    transform: translateY(-2px);
+}
+ 
+.profile-listing:focus-visible {
+    outline: 2px solid #0064A4;
+    outline-offset: 2px;
+}
+ 
+.profile-listing-image {
+    aspect-ratio: 4 / 3;
+ 
+    background: var(--soft-gray);
+}
+ 
+.profile-listing-image img {
+    width: 100%;
+    height: 100%;
+ 
+    object-fit: cover;
+}
+ 
+.profile-listing-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+ 
+    gap: 8px;
+ 
+    padding: 12px 14px;
+}
+ 
+.profile-listing-name {
+    overflow: hidden;
+ 
+    font-weight: 600;
+ 
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+ 
+.profile-listing-price {
+    flex-shrink: 0;
+ 
+    color: var(--primary);
+ 
+    font-weight: 700;
+}

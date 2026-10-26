@@ -1,7 +1,8 @@
 // The collapsible left panel (opened with the ☰ button) shared by Home and
 // the Item Page: categories, condition, price range, and optionally search.
 import { useState } from 'react'
-import { CATEGORIES, CONDITIONS } from '../../data/mockListings'
+import { CATEGORIES } from '../../data/categories'
+import { CONDITIONS } from '../../data/conditions'
 import { useListingFilters } from '../../hooks/useListingFilters'
 import './SearchPanel.css'
 
