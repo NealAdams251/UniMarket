@@ -24,6 +24,7 @@ function Home({ currentUser, setCurrentUser }) {
   const [selectedImage, setSelectedImage] = useState(null)
   // Filters start open on desktop, closed on phones so listings show first.
   const [categoriesOpen, setCategoriesOpen] = useState(() => window.matchMedia('(min-width: 701px)').matches)
+  
 
   // Re-fetch whenever any filter in the URL changes.
   const filterKey = JSON.stringify(filters)
@@ -41,7 +42,7 @@ function Home({ currentUser, setCurrentUser }) {
     <div className={`home-page${categoriesOpen ? '' : ' search-panel-closed'}`}>
 
       {console.log('HOME CURRENT USER:', currentUser)}
-      
+
       <Sidebar categoriesOpen={categoriesOpen} onToggleCategories={() => setCategoriesOpen((open) => !open)} />
 
       <SearchPanel open={categoriesOpen} />
@@ -63,7 +64,8 @@ function Home({ currentUser, setCurrentUser }) {
           <button type="button" className="sell-button">Sell Item</button>
 
           {/* TODO: pass the signed-in user's name from Supabase auth */}
-          <ProfileMenu />
+          <ProfileMenu 
+          />
         </section>
 
         <div className="results-bar">

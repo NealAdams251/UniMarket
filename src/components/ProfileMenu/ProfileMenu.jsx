@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom'
 // Profile button with a dropdown menu. Closes on outside click or Escape.
 import { useEffect, useRef, useState } from 'react'
 import './ProfileMenu.css'
+import { supabase } from '../../lib/supabase'
 
 const MENU_ITEMS = [
   { label: 'My Profile', action: 'profile' },
