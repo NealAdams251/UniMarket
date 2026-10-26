@@ -4,12 +4,6 @@ import { useEffect, useRef, useState } from 'react'
 import './ProfileMenu.css'
 import { supabase } from '../../lib/supabase'
 
-const MENU_ITEMS = [
-  { label: 'My Profile', action: 'profile' },
-  { label: 'My listings', action: 'listings' },
-  { label: 'Messages', action: 'messages' },
-  { label: 'Settings', action: 'settings' },
-]
 
 function ProfileMenu({ onSelect = () => {}, currentUser, setCurrentUser }) {
   const isAuthenticated = !! currentUser
@@ -17,6 +11,14 @@ function ProfileMenu({ onSelect = () => {}, currentUser, setCurrentUser }) {
   const navigate = useNavigate()
   const [open, setOpen] = useState(false)
   const wrapperRef = useRef(null)
+
+
+  const MENU_ITEMS = [
+    { label: 'My Profile', action: () => navigate(`/profile/${currentUser?.uid}`) },
+    { label: 'My listings', action: 'listings' },
+    { label: 'Messages', action: 'messages' },
+    { label: 'Settings', action: 'settings' },
+  ]
 
   useEffect(() => {
     if (!open) return
@@ -77,7 +79,7 @@ function ProfileMenu({ onSelect = () => {}, currentUser, setCurrentUser }) {
         <ul className="profile-dropdown" role="menu">
           {MENU_ITEMS.map((item) => (
             <li key={item.action} role="none">
-              <button type="button" role="menuitem" onClick={() => choose(item.action)}>
+              <button type="button" role="menuitem" onClick={() => typeof item.action === 'function' ? item.action() : choose(item.action)}>
                 {item.label}
               </button>
             </li>
