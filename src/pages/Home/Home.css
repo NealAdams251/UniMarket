@@ -174,7 +174,6 @@ input {
     cursor: pointer;
 
     transition: 0.2s ease;
-    margin-left: auto;
 }
 
 .profile-icon {
@@ -232,7 +231,7 @@ input {
 
 /* Sell Button */
 .sell-button {
-    position: absolute;
+    position: static;
     right: 0;
     border: none;
     border-radius: 12px;
@@ -441,7 +440,6 @@ input {
     cursor: default;
     border: 1px solid var(--border);
 }
-
 
 
 /* Mobile */
@@ -889,6 +887,90 @@ html, body {
     margin: 0;
     justify-self: end;
 }
+
+.header-buttons {
+  position: absolute;
+  right: 0;
+
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.signup-buttons{
+    gap: 8px;
+    display: flex;
+}
+
+
+.profile-menu {
+    position: relative;
+}
+
+.profile-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+
+    width: 170px;
+
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+
+    padding: 8px;
+
+    box-shadow: 0 8px 24px rgba(36, 60, 76, 0.15);
+
+    z-index: 100;
+}
+
+.profile-dropdown button {
+    width: 100%;
+
+    padding: 10px 12px;
+
+    border: none;
+    border-radius: 8px;
+
+    background: transparent;
+    color: var(--text-primary);
+
+    text-align: left;
+    cursor: pointer;
+}
+
+.profile-dropdown button:hover {
+    background: var(--background);
+}
+
+.profile-dropdown .logout-button {
+    color: #b33a3a;
+}
+
+.login-button {
+    border: none;
+    border-radius: 12px;
+
+    padding: 12px 20px;
+
+    background: var(--primary);
+    color: var(--surface);
+
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.heading-actions {
+  position: absolute;
+  right: 0;
+
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+
 @media (max-width: 1100px) {
     .home-heading {
         grid-template-columns: minmax(0, 1fr) auto auto;
@@ -1008,32 +1090,69 @@ html, body {
     font-size: 13px;
     text-align: left;
 }
-
-/* Search bar fills the row; Sell Item + profile sit on the right. */
-.home-heading.home-heading {
+/* Full-width search with actions on the right (no section heading). */
+.home-heading {
     display: flex;
     align-items: center;
     gap: 16px;
-    min-height: 120px;
+    min-height: 0;
+    margin-bottom: 8px;
 }
-.home-heading > .marketplace-search.marketplace-search {
+.home-heading > .marketplace-search {
     flex: 1;
     width: auto;
     padding: 12px 14px;
 }
-.marketplace-search input {
+.home-heading > .marketplace-search input {
     font-size: 15px;
 }
-.home-heading .sell-button {
+.home-heading .header-buttons {
+    position: static;
     flex-shrink: 0;
 }
 @media (max-width: 700px) {
-    .home-heading.home-heading {
+    .home-heading {
         flex-wrap: wrap;
-        min-height: 0;
-        padding: 8px 0 16px;
     }
-    .home-heading > .marketplace-search.marketplace-search {
+    .home-heading > .marketplace-search {
         flex-basis: 100%;
+    }
+}
+
+/* Category, price and sort filters. */
+.search-panel {
+    text-align: left;
+}
+.filter-section button.active {
+    background: #0064A4;
+    color: var(--surface);
+}
+.price-range {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--text-secondary);
+}
+.price-range input {
+    width: 100%;
+    min-width: 0;
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 13px;
+    color: var(--text-primary);
+}
+.price-range input:focus {
+    outline: 2px solid #0064A4;
+    outline-offset: 1px;
+}
+.no-results {
+    grid-column: 1 / -1;
+    color: var(--text-secondary);
+}
+@media (max-width: 1000px) {
+    .price-range {
+        width: 100%;
+        max-width: 240px;
     }
 }

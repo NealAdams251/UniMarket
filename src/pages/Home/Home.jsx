@@ -14,7 +14,7 @@ const SORT_OPTIONS = [
   { value: 'price_desc', label: 'Price: high to low' },
 ]
 
-function Home() {
+function Home({ currentUser, setCurrentUser }) {
   const navigate = useNavigate()
   const { filters, update, clear, activeCount } = useListingFilters()
   const [listings, setListings] = useState([])
