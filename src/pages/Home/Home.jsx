@@ -65,7 +65,8 @@ function Home({ currentUser, setCurrentUser }) {
 
           {/* TODO: pass the signed-in user's name from Supabase auth */}
           <ProfileMenu 
-          />
+          currentUser={currentUser}
+          setCurrentUser={setCurrentUser}/>
         </section>
 
         <div className="results-bar">

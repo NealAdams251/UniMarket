@@ -11,7 +11,9 @@ const MENU_ITEMS = [
   { label: 'Settings', action: 'settings' },
 ]
 
-function ProfileMenu({ name = 'Sign Up/Log In', onSelect = () => {}, isAuthenticated = false }) {
+function ProfileMenu({ onSelect = () => {}, currentUser }) {
+  const isAuthenticated = !! currentUser
+  const name = currentUser?.name || 'Sign Up/Log In'
   const navigate = useNavigate()
   const [open, setOpen] = useState(false)
   const wrapperRef = useRef(null)
@@ -65,14 +67,14 @@ function ProfileMenu({ name = 'Sign Up/Log In', onSelect = () => {}, isAuthentic
               </button>
             </li>
           ))}
-          {/* Enable once authenticated sign-out is implemented.
+          
           <li role="separator" className="profile-divider" />
           <li role="none">
             <button type="button" role="menuitem" className="danger" onClick={() => choose('signout')}>
               Sign out
             </button>
           </li>
-          */}
+          
         </ul>
       )}
     </div>
