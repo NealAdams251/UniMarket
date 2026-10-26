@@ -1,6 +1,6 @@
 import './ItemPage.css'
 import { useEffect, useState } from 'react'
-import { useLocation, useNavigate, useParams } from 'react-router-dom'
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import Sidebar from '../../components/Sidebar/Sidebar'
 import SearchPanel from '../../components/SearchPanel/SearchPanel'
 import ListingImage from '../../components/ListingImage/ListingImage'
@@ -98,7 +98,10 @@ function ItemPage() {
                   </div>
                   <div className="info-row">
                     <span className="info-label">Seller</span>
-                    <span>{item.seller} <span className="verified-badge">✓ UCI verified</span></span>
+                    <span>{item.sellerId
+                      ? <Link className="seller-link" to={`/profile/${item.sellerId}`}>{item.seller}</Link>
+                      : item.seller}
+                      {' '} <span className="verified-badge">✓ UCI verified</span></span>
                   </div>
                   <div className="info-row">
                     <span className="info-label">Date listed</span>

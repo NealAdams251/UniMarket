@@ -7,6 +7,7 @@ import { CONDITIONS } from '../data/conditions'
 export const LISTING_IMAGES_BUCKET = 'listing-images'
 
 const LISTING_COLUMNS = `id, title, price, category, condition, meetup_spot, description, created_at,
+  seller:profiles(id, display_name),
   images:listing_images(storage_path, sort_order)`
 
 const SORTS = {
@@ -53,6 +54,7 @@ export async function getListing(id) {
     .eq('id', id)
     .maybeSingle()
   
+  if (error?.code === '22P02') return null
   if (error) throw error
   return data ? toListing(data) : null
 }
@@ -92,7 +94,42 @@ export async function createListing(fields, files = []) {
  
   return listing.id
 }
+
+// One public profile by user id or null if user id doesn't exist
+export async function getProfile(userId) {
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('id, display_name, school, bio, created_at')
+    .eq('id', userId)
+    .maybeSingle()
  
+  if (error?.code === '22P02') return null
+  if (error) throw error
+  if (!data) return null
+  return {
+    id: data.id,
+    displayName: data.display_name,
+    school: data.school,
+    bio: data.bio,
+    createdAt: data.created_at,
+  }
+}
+
+// A seller's active listings
+export async function getListingsBySeller(sellerId) {
+  const { data, error } = await supabase
+    .from('listings')
+    .select(LISTING_COLUMNS)
+    .eq('seller_id', sellerId)
+    .eq('status', 'active')
+    .order('created_at', { ascending: false })
+ 
+  if (error?.code === '22P02') return []
+  if (error) throw error
+  return data.map(toListing)
+}
+ 
+// Converts a Supabase row into the shape the pages use
 function toListing(row) {
   return {
     id: row.id,
@@ -102,8 +139,8 @@ function toListing(row) {
     condition: row.condition,
     meetupSpot: row.meetup_spot,
     description: row.description,
-    // Do later when profiles table is created. Loads the seller's name
     seller: row.seller?.display_name ?? 'Student',
+    sellerId: row.seller?.id ?? null,
     createdAt: row.created_at,
     images: [...(row.images ?? [])]
       .sort((a, b) => a.sort_order - b.sort_order)
