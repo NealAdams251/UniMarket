@@ -7,6 +7,7 @@ import { useListingFilters } from '../../hooks/useListingFilters'
 import { getListings, formatPrice, conditionLabel, timeAgo } from '../../lib/listings'
 import { useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
+import { supabase } from '../../lib/supabase'
 
 const SORT_OPTIONS = [
   { value: 'newest', label: 'Newest first' },
@@ -38,6 +39,9 @@ function Home({ currentUser, setCurrentUser }) {
 
   return (
     <div className={`home-page${categoriesOpen ? '' : ' search-panel-closed'}`}>
+
+      {console.log('HOME CURRENT USER:', currentUser)}
+      
       <Sidebar categoriesOpen={categoriesOpen} onToggleCategories={() => setCategoriesOpen((open) => !open)} />
 
       <SearchPanel open={categoriesOpen} />

@@ -1,26 +1,108 @@
-import { Link } from 'react-router-dom'
-import './LogIn.css'
+import './Login.css'
+import { useNavigate } from 'react-router-dom'
+import { useState } from 'react'
+import { supabase } from '../../lib/supabase'
 
-function Login() {
+function Login({ setCurrentUser }) {
+  const navigate = useNavigate()
+
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [errorMessage, setErrorMessage] = useState('')
+  const [loading, setLoading] = useState(false)
+
+  async function handleLogin() {
+    console.log('Attempting login with email:', email)
+    setErrorMessage('')
+
+    if (!email || !password) {
+      setErrorMessage('Please enter your email and password.')
+      return
+    }
+
+    setLoading(true)
+
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    })
+
+    setLoading(false)
+
+    if (error) {
+      setErrorMessage('Invalid email or password.')
+      console.error(error)
+      return
+    }
+
+    if (!data.user) {
+      setErrorMessage('User not found.')
+      return
+    }
+
+    // Get the matching public profile
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', data.user.id)
+      .single()
+
+    if (profileError) {
+      console.error(profileError)
+      setErrorMessage('Could not load your profile.')
+      return
+    }
+
+    setCurrentUser({
+      uid: data.user.id,
+      email: data.user.email,
+      name: profile.display_name,
+      school: profile.school,
+      bio: profile.bio,
+    })
+    navigate('/')
+  }
+
+
   return (
-    <main className="login-page" aria-label="Log In">
-      <Link to="/" className="login-home-link" aria-label="Home" title="Home">
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-          <path d="M19 12H5m7-7-7 7 7 7" />
-        </svg>
-      </Link>
-      <section className="login-panel" aria-labelledby="login-heading">
-        <h2 id="login-heading">Log into UniMarket</h2>
+    <main className="login-page">
+      <section className="login-panel">
+        <h2>Log In to UniMarket</h2>
+
         <div className="login-fields">
           <label htmlFor="login-email">Email</label>
-          <input id="login-email" name="email" type="email" autoComplete="email" placeholder="Enter your email" />
+          <input
+            id="login-email"
+            type="email"
+            placeholder="Enter your email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+
           <label htmlFor="login-password">Password</label>
-          <input id="login-password" name="password" type="password" autoComplete="current-password" placeholder="Enter your password" />
+          <input
+            id="login-password"
+            type="password"
+            placeholder="Enter your password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
         </div>
-        <div className="login-signup-area">
-          <button type="button" className="login-signup-button">Log In</button>
-          <Link to="/signup" className="login-signup-link">Sign Up</Link>
-        </div>
+
+        {errorMessage && (
+          <p className="login-error">
+            {errorMessage}
+          </p>
+        )}
+
+        <button
+          type="button"
+          className="login-button"
+          onClick={handleLogin}
+          disabled={loading}
+        >
+          {loading ? 'Logging in...' : 'Log In'}
+        </button>
       </section>
     </main>
   )
