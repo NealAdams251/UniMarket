@@ -133,3 +133,22 @@
     outline: 2px solid #0064A4;
     outline-offset: 3px;
 }
+
+.login-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.signup-link-button {
+  border: none;
+  background: transparent;
+  color: var(--primary);
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.signup-link-button:hover {
+  text-decoration: underline;
+}

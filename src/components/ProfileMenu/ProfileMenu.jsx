@@ -11,7 +11,7 @@ const MENU_ITEMS = [
   { label: 'Settings', action: 'settings' },
 ]
 
-function ProfileMenu({ onSelect = () => {}, currentUser }) {
+function ProfileMenu({ onSelect = () => {}, currentUser, setCurrentUser }) {
   const isAuthenticated = !! currentUser
   const name = currentUser?.name || 'Sign Up/Log In'
   const navigate = useNavigate()
@@ -34,10 +34,25 @@ function ProfileMenu({ onSelect = () => {}, currentUser }) {
     }
   }, [open])
 
+  async function handleSignOut() {
+    const { error } = await supabase.auth.signOut()
+
+    if (error) {
+      console.error('Error signing out:', error)
+      return
+    }
+
+    setCurrentUser(null)
+    setOpen(false)
+    navigate('/')
+  }
+
   function choose(action) {
     setOpen(false)
     onSelect(action)
   }
+
+
 
   return (
     <div className="profile-menu" ref={wrapperRef}>
@@ -70,7 +85,7 @@ function ProfileMenu({ onSelect = () => {}, currentUser }) {
           
           <li role="separator" className="profile-divider" />
           <li role="none">
-            <button type="button" role="menuitem" className="danger" onClick={() => choose('signout')}>
+            <button type="button" role="menuitem" className="danger" onClick={handleSignOut}>
               Sign out
             </button>
           </li>

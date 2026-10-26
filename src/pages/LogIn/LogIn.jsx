@@ -103,6 +103,14 @@ function Login({ setCurrentUser }) {
         >
           {loading ? 'Logging in...' : 'Log In'}
         </button>
+
+        <button
+          type="button"
+          className="signup-link-button"
+          onClick={() => navigate('/signup')}
+        >
+          Create an Account
+        </button>
       </section>
     </main>
   )
