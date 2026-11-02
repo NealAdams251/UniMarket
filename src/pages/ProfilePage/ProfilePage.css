@@ -2,6 +2,7 @@
     display: flex;
     min-height: 100vh;
     width: 100%;
+    padding-bottom: 20px;
 }
 
 .profile-page {
@@ -33,7 +34,7 @@
 
     padding-bottom: 28px;
 
-    border-bottom: 1px solid var(--border);
+    /* border-bottom: 1px solid var(--border); */
 }
 
 .profile-avatar {
@@ -83,6 +84,7 @@
 .profile-details {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    
 
     gap: 18px;
 
@@ -97,22 +99,22 @@
 
     padding: 16px;
 
-    background: var(--background);
+    /*background: var(--soft-gray);*/
 
     border-radius: 12px;
 }
 
 .detail-label {
     color: var(--text-primary);
-
-    font-size: 13px;
-    font-weight: 600;
+    
+    font-size: 32px;
+    font-weight: 700;
 }
 
 .detail-value {
     color: var(--text-primary);
 
-    font-size: 15px;
+    font-size: 22px;
 
     overflow-wrap: anywhere;
 }
@@ -123,6 +125,7 @@
 
 .profile-bio h3 {
     margin: 0 0 10px;
+    font-size: 32px;
 
     color: var(--text-primary);
 }
@@ -267,4 +270,12 @@
     color: var(--primary);
  
     font-weight: 700;
+}
+
+.all-info {
+    background: #F4F8FA;
+    padding: 6px;
+    padding-top: 12px;
+    border-radius: 12px;
+    border: var(--border) solid 1px;
 }

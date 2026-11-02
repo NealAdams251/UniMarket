@@ -3,6 +3,7 @@ import ListingImage from '../../components/ListingImage/ListingImage'
 import { Link, useParams } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { getProfile, getListingsBySeller, formatPrice } from '../../lib/listings'
+import Sidebar from '../../components/Sidebar/Sidebar'
 
 function Profile() {
     const { uid } = useParams()
@@ -39,7 +40,6 @@ function Profile() {
  
         return (
         <div className="profile-layout">
- 
             <main className="profile-page">
             <div className="profile-card">
                 <h2>{message}</h2>
@@ -51,7 +51,7 @@ function Profile() {
 
     return (
         <div className="profile-layout">
- 
+            <Sidebar />
             <main className="profile-page">
                 <div className="profile-card">
                     <div className="profile-top">
@@ -67,7 +67,9 @@ function Profile() {
                         </p>
                     </div>
                 </div>
- 
+
+
+            <div className="all-info">
                 <div className="profile-details">
                     <div className="profile-detail">
                         <span className="detail-label">
@@ -116,7 +118,12 @@ function Profile() {
                         ))}
                     </div>
                 </div>
+            
                 </div>
+
+            </div>
+
+            
             </main>
         </div>
     )

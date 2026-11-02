@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
 import { CONDITIONS } from '../../data/conditions'
 import { CATEGORIES } from '../../data/categories'
+import Sidebar from '../../components/Sidebar/Sidebar'
 
 
 function CreateListing({ currentUser }) {
@@ -127,6 +128,8 @@ function CreateListing({ currentUser }) {
 
   return (
     <div className="create-listing-layout">
+
+      <Sidebar />
 
       <main className="create-listing-page">
         <section className="create-listing-panel">
