@@ -1156,3 +1156,15 @@ html, body {
         max-width: 240px;
     }
 }
+
+/* Keep both header actions the same height, including the outlined border. */
+.home-heading .sell-button,
+.home-heading .profile-button {
+    box-sizing: border-box;
+    height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding-top: 0;
+    padding-bottom: 0;
+}

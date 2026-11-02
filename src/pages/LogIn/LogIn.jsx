@@ -1,5 +1,5 @@
 import './LogIn.css'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 import { supabase } from '../../lib/supabase'
 
@@ -66,8 +66,13 @@ function Login({ setCurrentUser }) {
 
   return (
     <main className="login-page">
+      <Link to="/" className="login-home-link" aria-label="Return to homepage" title="Return to homepage">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">
+          <path d="m12 19-7-7 7-7M5 12h14" />
+        </svg>
+      </Link>
       <section className="login-panel">
-        <h2>Log In to UniMarket</h2>
+        <h2>Log In to UNIMarket</h2>
 
         <div className="login-fields">
           <label htmlFor="login-email">Email</label>

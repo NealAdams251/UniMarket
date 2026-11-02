@@ -75,7 +75,7 @@ function SignUp() {
         aria-labelledby="signup-heading"
       >
         <h2 id="signup-heading">
-          Sign up for UniMarket
+          Sign up for UNIMarket
         </h2>
 
         <div className="signup-fields">

@@ -1,16 +1,18 @@
 import './ItemPage.css'
 import { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
-import Sidebar from '../../components/Sidebar/Sidebar'
+import SearchItems from '../../components/SearchItems/SearchItems'
+import { useListingFilters } from '../../hooks/useListingFilters'
 import SearchPanel from '../../components/SearchPanel/SearchPanel'
 import ListingImage from '../../components/ListingImage/ListingImage'
 import { getListing, formatPrice, conditionLabel, categoryLabel, timeAgo } from '../../lib/listings'
 
 function ItemPage() {
+  const { filters, update } = useListingFilters()
+  const [searchText, setSearchText] = useState(filters.q)
   const { id } = useParams()
   const navigate = useNavigate()
   const location = useLocation()
-  const [categoriesOpen, setCategoriesOpen] = useState(false)
   const [item, setItem] = useState(null)
   const [status, setStatus] = useState('loading') // loading | ready | missing | error
   const [activeImage, setActiveImage] = useState(0)
@@ -36,11 +38,15 @@ function ItemPage() {
   const goBack = () => (location.key !== 'default' ? navigate(-1) : navigate('/'))
 
   return (
-    <div className={`item-page${categoriesOpen ? '' : ' search-panel-closed'}`}>
-      <Sidebar categoriesOpen={categoriesOpen} onToggleCategories={() => setCategoriesOpen((open) => !open)} />
-      <SearchPanel open={categoriesOpen} showSearch />
+    <div className="item-page">
+      <SearchPanel />
 
       <main className="item-content">
+        <section className="home-heading">
+        <SearchItems showBrand
+          value={searchText} onChange={setSearchText}
+          onSubmit={(event) => { event.preventDefault(); update({ q: searchText.trim() }) }} />
+        </section>
         <button type="button" className="back-link" onClick={goBack}>← Back to listings</button>
 
         {status === 'loading' && <p className="item-status">Loading…</p>}

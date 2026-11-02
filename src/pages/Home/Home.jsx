@@ -1,5 +1,5 @@
 import './Home.css'
-import Sidebar from '../../components/Sidebar/Sidebar'
+import SearchItems from '../../components/SearchItems/SearchItems'
 import SearchPanel from '../../components/SearchPanel/SearchPanel'
 import ProfileMenu from '../../components/ProfileMenu/ProfileMenu'
 import ListingImage from '../../components/ListingImage/ListingImage'
@@ -22,8 +22,6 @@ function Home({ currentUser, setCurrentUser }) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [selectedImage, setSelectedImage] = useState(null)
-  // Filters start open on desktop, closed on phones so listings show first.
-  const [categoriesOpen, setCategoriesOpen] = useState(() => window.matchMedia('(min-width: 701px)').matches)
   
 
   // Re-fetch whenever any filter in the URL changes.
@@ -39,26 +37,16 @@ function Home({ currentUser, setCurrentUser }) {
   }, [filterKey])
 
   return (
-    <div className={`home-page${categoriesOpen ? '' : ' search-panel-closed'}`}>
+    <div className="home-page">
 
       {console.log('HOME CURRENT USER:', currentUser)}
 
-      <Sidebar categoriesOpen={categoriesOpen} onToggleCategories={() => setCategoriesOpen((open) => !open)} />
-
-      <SearchPanel open={categoriesOpen} />
+      <SearchPanel />
 
       <main className="home-main">
         <section className="home-heading">
-          <div className="search-box marketplace-search">
-            <span className="search-icon" aria-hidden="true">⌕</span>
-            <input
-              type="search"
-              aria-label="Search items"
-              placeholder="Search items..."
-              value={filters.q}
-              onChange={(e) => update({ q: e.target.value })}
-            />
-          </div>
+          <SearchItems showBrand
+            value={filters.q} onChange={(q) => update({ q })} />
 
           {/* TODO: route to the Create Listing page once it exists */}
           <button type="button" className="sell-button"

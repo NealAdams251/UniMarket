@@ -1,36 +1,21 @@
-// The collapsible left panel (opened with the ☰ button) shared by Home and
-// the Item Page: categories, condition, price range, and optionally search.
-import { useState } from 'react'
+// The categories panel shared by Home and
+// the Item Page: categories, condition, and price range.
+
+import { Link } from 'react-router-dom'
+import uciLogo from '../../assets/uci-logo.png'
 import { CATEGORIES } from '../../data/categories'
 import { CONDITIONS } from '../../data/conditions'
 import { useListingFilters } from '../../hooks/useListingFilters'
 import './SearchPanel.css'
 
-function SearchPanel({ open, showSearch = false }) {
+function SearchPanel() {
   const { filters, update, clear, activeCount } = useListingFilters()
-  const [searchText, setSearchText] = useState(filters.q)
-
-  function submitSearch(e) {
-    e.preventDefault()
-    update({ q: searchText.trim() })
-  }
-
   return (
-    <aside id="search-panel" className="search-panel" hidden={!open}>
-      {showSearch && (
-        <form className="search-box" role="search" onSubmit={submitSearch}>
-          <span className="search-icon" aria-hidden="true">⌕</span>
-          <input
-            type="search"
-            aria-label="Search items"
-            placeholder="Search items..."
-            value={searchText}
-            onChange={(e) => setSearchText(e.target.value)}
-          />
-        </form>
-      )}
-
+    <aside id="search-panel" className="search-panel">
       <div className="filter-section">
+        <Link to="/" className="categories-home-logo" aria-label="UniMarket home" title="Return to homepage">
+          <img src={uciLogo} alt="UCI" />
+        </Link>
         <div className="categories-heading">
           <h3>Categories</h3>
         </div>

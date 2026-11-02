@@ -6,19 +6,21 @@ import Login from './pages/LogIn/LogIn'
 import SignUp from './pages/SignUp/SignUp'
 import ProfilePage from './pages/ProfilePage/ProfilePage'
 import CreateListing from './pages/CreateListing/CreateListing'
+import Settings from './pages/Settings/Settings'
 import './App.css'
 
 function MarketplaceLayout() {
   const { pathname } = useLocation()
-const showHeader = pathname === '/' || pathname === '/login' || pathname === '/signup'
+const isAuthPage = pathname === '/login' || pathname === '/signup'
+const showHeader = isAuthPage
 const [currentUser, setCurrentUser] = useState(null)
 
   return (
-    <div className={`marketplace-shell${showHeader ? '' : ' marketplace-shell-full-height'}`}>
+    <div className={`marketplace-shell${showHeader ? '' : ' marketplace-shell-full-height'}${isAuthPage ? ' marketplace-shell-auth' : ''}`}>
       {showHeader && (
         <header className="marketplace-header">
-          <h1 className="title">UniMarket</h1>
-          <p className="subtitle">Buy and sell with students on your campus</p>
+          <h1 className="title">UNIMarket</h1>
+          <p className="subtitle">One market for all your personal university needs</p>
         </header>
       )}
 <Routes>
@@ -35,6 +37,7 @@ const [currentUser, setCurrentUser] = useState(null)
     path="/login"
     element={<Login setCurrentUser={setCurrentUser} />}
   />
+  <Route path="/settings" element={<Settings setCurrentUser={setCurrentUser} />} />
   <Route path="/signup" element={<SignUp />} />
   <Route path="/ItemPage/:id" element={<ItemPage />} />
   <Route path="/profile/:uid" element={<ProfilePage />} />

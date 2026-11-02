@@ -1,12 +1,10 @@
 import './ProfilePage.css'
-import Sidebar from '../../components/Sidebar/Sidebar'
 import ListingImage from '../../components/ListingImage/ListingImage'
 import { Link, useParams } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { getProfile, getListingsBySeller, formatPrice } from '../../lib/listings'
 
 function Profile() {
-    const [categoriesOpen, setCategoriesOpen] = useState(true)
     const { uid } = useParams()
  
     const [result, setResult] = useState({ uid: null, user: null, listings: [], failed: false })
@@ -41,7 +39,6 @@ function Profile() {
  
         return (
         <div className="profile-layout">
-            <Sidebar categoriesOpen={categoriesOpen} onToggleCategories={() => setCategoriesOpen(open => !open)} />
  
             <main className="profile-page">
             <div className="profile-card">
@@ -54,7 +51,6 @@ function Profile() {
 
     return (
         <div className="profile-layout">
-            <Sidebar categoriesOpen={categoriesOpen} onToggleCategories={() => setCategoriesOpen(open => !open)} />
  
             <main className="profile-page">
                 <div className="profile-card">

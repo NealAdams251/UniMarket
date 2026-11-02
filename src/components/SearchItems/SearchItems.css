@@ -1,0 +1,74 @@
+/* Keep the toggle outside the bordered search field on every page. */
+form.marketplace-search {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  margin: 0;
+}
+.home-heading > form.marketplace-search {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  flex: 1;
+}
+.marketplace-search .search-items-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+  width: auto;
+  padding: 12px 14px;
+}
+.marketplace-search .search-items-field input { flex: 1; min-width: 0; font-size: 15px; }
+.marketplace-search > .search-categories-toggle {
+  display: inline-flex;
+  position: static;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 44px;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #FFFFFF;
+  color: #243C4C;
+  cursor: pointer;
+}
+.search-categories-toggle svg { display: block; flex-shrink: 0; }
+.marketplace-search > .search-categories-toggle:hover { background: #E9F2F7; }
+.search-categories-toggle:focus-visible { outline: 2px solid #0064A4; outline-offset: 2px; }
+.item-content > .marketplace-search { width: 100%; margin: 0 0 20px; }
+@media (max-width: 700px) {
+  .home-heading > form.marketplace-search { flex-basis: 100%; }
+}
+/* Balance the space on both sides of the toggle, including the page gutter. */
+.home-main { --search-page-gutter: clamp(18px, 2.5vw, 50px); }
+.item-content { --search-page-gutter: 40px; }
+.marketplace-search > .search-categories-toggle {
+  transform: translateX(calc((12px - var(--search-page-gutter)) / 2));
+}
+@media (max-width: 700px) {
+  .home-main, .item-content { --search-page-gutter: 18px; }
+}
+/* Compact, unboxed menu control beside the search field. */
+.home-heading > form.marketplace-search,
+.item-content > form.marketplace-search {
+  gap: 8px;
+  margin-left: calc(8px - var(--search-page-gutter));
+}
+.item-content > form.marketplace-search {
+  width: calc(100% + var(--search-page-gutter) - 8px);
+}
+.marketplace-search > .search-categories-toggle {
+  transform: none;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+.marketplace-search > .search-categories-toggle:hover {
+  background: transparent;
+  color: #0064A4;
+}

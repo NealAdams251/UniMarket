@@ -17,7 +17,7 @@ function ProfileMenu({ onSelect = () => {}, currentUser, setCurrentUser }) {
     { label: 'My Profile', action: () => navigate(`/profile/${currentUser?.uid}`) },
     { label: 'My listings', action: 'listings' },
     { label: 'Messages', action: 'messages' },
-    { label: 'Settings', action: 'settings' },
+    { label: 'Settings', action: () => navigate(isAuthenticated ? '/settings' : '/login') },
   ]
 
   useEffect(() => {
