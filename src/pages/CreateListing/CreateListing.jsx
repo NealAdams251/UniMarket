@@ -3,22 +3,9 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
 import Sidebar from '../../components/Sidebar/Sidebar'
+import { CONDITIONS } from '../../data/conditions'
+import { CATEGORIES } from '../../data/categories'
 
-const CATEGORIES = [
-  'Textbooks',
-  'Furniture',
-  'Electronics',
-  'Clothing',
-  'Dorm Essentials',
-  'Others',
-]
-
-const CONDITIONS = [
-  'New',
-  'Like New',
-  'Good',
-  'Fair',
-]
 
 function CreateListing({ currentUser }) {
   const navigate = useNavigate()
@@ -77,6 +64,7 @@ function CreateListing({ currentUser }) {
 
   try {
     // 1. Create listing first
+
     const { data: listing, error: listingError } = await supabase
       .from('listings')
       .insert({
@@ -84,8 +72,8 @@ function CreateListing({ currentUser }) {
         title: title.trim(),
         description: description.trim(),
         price: numericPrice,
-        category: category.toLowerCase(),
-        condition: condition.toLocaleLowerCase(),
+        category,
+        condition,
         meetup_spot: meetupSpot.trim(),
         status: 'active',
       })
@@ -220,17 +208,15 @@ function CreateListing({ currentUser }) {
                 id="listing-condition"
                 value={condition}
                 onChange={(e) => setCondition(e.target.value)}
-              >
-                <option value="">
-                  Select condition
-                </option>
+                >
+                <option value="">Select condition</option>
 
-                {CONDITIONS.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
+                {CONDITIONS.map((item) => (
+                    <option key={item.value} value={item.value}>
+                    {item.label}
+                    </option>
                 ))}
-              </select>
+                </select>
             </div>
 
             {/* Category */}
@@ -240,20 +226,17 @@ function CreateListing({ currentUser }) {
               </label>
 
               <select
-                id="listing-category"
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
-              >
-                <option value="">
-                  Select category
-                </option>
+                >
+                <option value="">Select category</option>
 
-                {CATEGORIES.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
+                {CATEGORIES.map((item) => (
+                    <option key={item.value} value={item.value}>
+                    {item.label}
+                    </option>
                 ))}
-              </select>
+                </select>
             </div>
 
             {/* Description */}
