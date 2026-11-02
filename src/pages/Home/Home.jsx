@@ -61,7 +61,17 @@ function Home({ currentUser, setCurrentUser }) {
           </div>
 
           {/* TODO: route to the Create Listing page once it exists */}
-          <button type="button" className="sell-button">Sell Item</button>
+          <button type="button" className="sell-button"
+            onClick={() => {
+              if (currentUser) {
+                navigate('/CreateListing')
+              } else {
+                alert('You must be logged in to sell an item. Please log in or sign up first.')
+              }
+            }}
+          >
+            Sell Item 
+          </button>
 
           {/* TODO: pass the signed-in user's name from Supabase auth */}
           <ProfileMenu 

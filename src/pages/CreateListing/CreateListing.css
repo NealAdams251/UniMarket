@@ -1,0 +1,161 @@
+html,
+body,
+#root {
+    width: 100%;
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+}
+
+    :root {
+    --primary: #5289AD;
+    --dark: #243C4C;
+    --muted: #698696;
+    --soft-gray: #ACBCBF;
+    --background: #F4FCFB;
+
+    --surface: #FFFFFF;
+    --text-primary: #243C4C;
+    --text-secondary: #698696;
+    --border: #ACBCBF;
+}
+
+.create-listing-layout {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+}
+
+.create-listing-page {
+  flex: 1;
+  min-width: 0;
+
+  padding: 40px 50px;
+  background: var(--background);
+}
+
+.create-listing-panel {
+  width: 100%;
+  max-width: 750px;
+  margin: 0 auto;
+
+  background: var(--surface);
+  padding: 32px;
+
+  border: 1px solid var(--border);
+  border-radius: 16px;
+}
+
+.create-listing-panel h1 {
+  margin: 0 0 24px;
+  font-size: 56px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.create-listing-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group label {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font: inherit;
+  background: white;
+}
+
+.form-group textarea {
+  resize: vertical;
+}
+
+.listing-image-preview {
+  margin-top: 10px;
+  width: 200px;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+}
+
+.create-listing-error {
+  color: #b42318;
+  margin: 0;
+}
+
+.create-listing-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.cancel-listing-button,
+.create-listing-button {
+  padding: 12px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.cancel-listing-button {
+  background: white;
+  border: 1px solid var(--border);
+}
+
+.create-listing-button {
+  border: none;
+  background: var(--primary);
+  color: white;
+}
+
+.create-listing-button:disabled,
+.cancel-listing-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.price-input-wrapper {
+  display: flex;
+  align-items: center;
+
+  border: 1px solid var(--border);
+  border-radius: 8px;
+
+  background: white;
+  overflow: hidden;
+}
+
+.price-symbol {
+  padding-left: 12px;
+  padding-right: 6px;
+
+  font-size: 18px;
+  color: var(--text-primary);
+}
+
+.price-input-wrapper input {
+  flex: 1;
+
+  border: none;
+  outline: none;
+
+  padding: 12px 12px 12px 0;
+
+  font: inherit;
+  background: transparent;
+}

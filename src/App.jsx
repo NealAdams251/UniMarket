@@ -5,6 +5,7 @@ import ItemPage from './pages/ItemPage/ItemPage'
 import Login from './pages/LogIn/LogIn'
 import SignUp from './pages/SignUp/SignUp'
 import ProfilePage from './pages/ProfilePage/ProfilePage'
+import CreateListing from './pages/CreateListing/CreateListing'
 import './App.css'
 
 function MarketplaceLayout() {
@@ -37,6 +38,7 @@ const [currentUser, setCurrentUser] = useState(null)
   <Route path="/signup" element={<SignUp />} />
   <Route path="/ItemPage/:id" element={<ItemPage />} />
   <Route path="/profile/:uid" element={<ProfilePage />} />
+  <Route path="/CreateListing" element={<CreateListing currentUser={currentUser} setCurrentUser={setCurrentUser} />} />
 </Routes>
     </div>
   )
