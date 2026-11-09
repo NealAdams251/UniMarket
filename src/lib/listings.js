@@ -97,12 +97,20 @@ export async function createListing(fields, files = []) {
 
 // One public profile by user id or null if user id doesn't exist
 export async function getProfile(userId) {
-  const { data, error } = await supabase
+  const profileColumns = 'id, display_name, school, bio, created_at'
+  const selectProfile = (columns) => supabase
     .from('profiles')
-    .select('id, display_name, school, bio, created_at, avatar_path')
+    .select(columns)
     .eq('id', userId)
     .maybeSingle()
- 
+
+  let result = await selectProfile(profileColumns + ', avatar_path')
+  // Older databases can still display profiles before the picture migration.
+  if (result.error?.code === '42703' && result.error.message.includes('avatar_path')) {
+    result = await selectProfile(profileColumns)
+  }
+  const { data, error } = result
+
   if (error?.code === '22P02') return null
   if (error) throw error
   if (!data) return null
