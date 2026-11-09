@@ -117,3 +117,16 @@
   cursor: pointer;
 }
 .settings-theme input { accent-color: #0064A4; }
+.settings-password { margin-bottom: 20px; }
+.settings-password form { display: grid; gap: 12px; max-width: 360px; margin-top: 12px; }
+.settings-password label { display: grid; gap: 6px; }
+.settings-password input {
+  min-width: 0;
+  padding: 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--text-primary);
+  font: inherit;
+}
+.settings-page .settings-password button { color: var(--text-primary); justify-self: start; }

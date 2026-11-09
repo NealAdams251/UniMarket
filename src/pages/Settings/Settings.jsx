@@ -79,6 +79,7 @@ function Settings({ setCurrentUser, darkMode, setDarkMode }) {
           <>
             <section className="settings-section settings-account" aria-label="Account">
               <dl><dt>Email</dt><dd>{auth.user.email}</dd></dl>
+              <PasswordChange email={auth.user.email} />
               <label className="settings-theme">
                 <input type="checkbox" role="switch" checked={darkMode}
                   onChange={event => setDarkMode(event.target.checked)} />
@@ -110,6 +111,85 @@ function Settings({ setCurrentUser, darkMode, setDarkMode }) {
         )}
       </div>
     </main>
+  )
+}
+
+function PasswordChange({ email }) {
+  const [open, setOpen] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState('')
+  const [notice, setNotice] = useState('')
+
+  async function changePassword(event) {
+    event.preventDefault()
+    if (saving) return
+    const form = new FormData(event.currentTarget)
+    const oldPassword = form.get('oldPassword')
+    const newPassword = form.get('newPassword')
+    const confirmation = form.get('confirmation')
+    setError('')
+    setNotice('')
+
+    if ([oldPassword, newPassword, confirmation].some(password => !password || password.length > 32)) {
+      setError('Enter a password of up to 32 characters in each field.')
+      return
+    }
+    if (newPassword !== confirmation) {
+      setError('The new passwords do not match.')
+      return
+    }
+
+    setSaving(true)
+    try {
+      const { error: verificationError } = await supabase.auth.signInWithPassword({ email, password: oldPassword })
+      if (verificationError) {
+        setError(verificationError.code === 'invalid_credentials'
+          ? 'The old password is incorrect.'
+          : 'Could not verify your old password. Please try again.')
+        return
+      }
+
+      const { error: updateError } = await supabase.auth.updateUser({ password: newPassword })
+      if (updateError) {
+        setError(updateError.message)
+        return
+      }
+      setOpen(false)
+      setNotice('Password changed.')
+    } catch {
+      setError('Could not change your password. Please try again.')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <div className="settings-password">
+      <button type="button" aria-expanded={open} aria-controls="settings-password-form"
+        disabled={saving} onClick={() => {
+          setError('')
+          setNotice('')
+          setOpen(!open)
+        }}>
+        Change password
+      </button>
+      {open && (
+        <form id="settings-password-form" onSubmit={changePassword}>
+          <label>Old password
+            <input name="oldPassword" type="password" autoComplete="current-password" maxLength={32} required disabled={saving} />
+          </label>
+          <label>New password
+            <input name="newPassword" type="password" autoComplete="new-password" maxLength={32} required disabled={saving} />
+          </label>
+          <label>Confirm new password
+            <input name="confirmation" type="password" autoComplete="new-password" maxLength={32} required disabled={saving} />
+          </label>
+          {error && <p className="profile-save-error" role="alert">{error}</p>}
+          <button type="submit" disabled={saving}>{saving ? 'Saving…' : 'Save password'}</button>
+        </form>
+      )}
+      {notice && <p role="status">{notice}</p>}
+    </div>
   )
 }
 
