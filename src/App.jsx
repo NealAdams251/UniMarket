@@ -7,6 +7,7 @@ import SignUp from './pages/SignUp/SignUp'
 import ProfilePage from './pages/ProfilePage/ProfilePage'
 import CreateListing from './pages/CreateListing/CreateListing'
 import Settings from './pages/Settings/Settings'
+import Messages from './pages/Messages/Messages'
 import './App.css'
 
 function MarketplaceLayout() {
@@ -41,6 +42,8 @@ const [currentUser, setCurrentUser] = useState(null)
   <Route path="/signup" element={<SignUp />} />
   <Route path="/ItemPage/:id" element={<ItemPage />} />
   <Route path="/profile/:uid" element={<ProfilePage />} />
+  <Route path="/messages" element={<Messages />} />
+  <Route path="/messages/:conversationId" element={<Messages />} />
   <Route path="/CreateListing" element={<CreateListing currentUser={currentUser} setCurrentUser={setCurrentUser} />} />
 </Routes>
     </div>

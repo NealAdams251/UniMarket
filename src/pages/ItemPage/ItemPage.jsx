@@ -6,6 +6,8 @@ import { useListingFilters } from '../../hooks/useListingFilters'
 import SearchPanel from '../../components/SearchPanel/SearchPanel'
 import ListingImage from '../../components/ListingImage/ListingImage'
 import { getListing, formatPrice, conditionLabel, categoryLabel, timeAgo } from '../../lib/listings'
+import { startConversation } from '../../lib/messages'
+import { useAuthUser } from '../../hooks/useAuthUser'
 
 function ItemPage() {
   const { filters, update } = useListingFilters()
@@ -17,13 +19,15 @@ function ItemPage() {
   const [status, setStatus] = useState('loading') // loading | ready | missing | error
   const [activeImage, setActiveImage] = useState(0)
   const [zoomed, setZoomed] = useState(false)
-  const [messageSent, setMessageSent] = useState(false)
+  const { user } = useAuthUser()
+  const [opening, setOpening] = useState(false)
+  const [messageError, setMessageError] = useState('')
 
   useEffect(() => {
     let ignore = false
     setStatus('loading')
     setActiveImage(0)
-    setMessageSent(false)
+    setMessageError('')
     getListing(id)
       .then((row) => {
         if (ignore) return
@@ -36,6 +40,22 @@ function ItemPage() {
 
   // Go back to the filtered results if the user came from Home; otherwise go Home.
   const goBack = () => (location.key !== 'default' ? navigate(-1) : navigate('/'))
+
+  async function messageSeller() {
+    if (!user) { navigate('/login'); return }
+    setOpening(true)
+    setMessageError('')
+    try {
+      const conversationId = await startConversation(item.sellerId)
+      navigate(`/messages/${conversationId}`, { state: { listing: { id: item.id, title: item.title } } })
+    } catch (err) {
+      console.error('Failed to start conversation:', err)
+      setMessageError('Could not open a chat. Please try again.')
+      setOpening(false)
+    }
+  }
+
+  const isOwnListing = user && item?.sellerId === user.id
 
   return (
     <div className="item-page">
@@ -130,15 +150,18 @@ function ItemPage() {
                 <div className="item-card description-card">
                   <h2>Description</h2>
                   <p>{item.description}</p>
-                  {/* TODO: create a conversation in Supabase and open the chat page */}
-                  <button
-                    type="button"
-                    className="message-button"
-                    onClick={() => setMessageSent(true)}
-                    disabled={messageSent}
-                  >
-                    {messageSent ? 'Chat coming soon' : `Message ${item.seller.split(' ')[0]}`}
-                  </button>
+                  {item.sellerId && !isOwnListing && (
+                    <button
+                      type="button"
+                      className="message-button"
+                      onClick={messageSeller}
+                      disabled={opening}
+                    >
+                      {opening ? 'Opening chat…' : `Message ${item.seller.split(' ')[0]}`}
+                    </button>
+                  )}
+                  {isOwnListing && <p className="safety-tip">This is your listing.</p>}
+                  {messageError && <p className="safety-tip" role="alert">{messageError}</p>}
                   <p className="safety-tip">Meet in a public spot on campus and check the item before paying.</p>
                 </div>
               </div>

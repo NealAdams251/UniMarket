@@ -1,0 +1,1193 @@
+From 273e23da555823db9d87260f2782c9cee5f58f88 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Sun, 8 Nov 2026 17:45:25 -0800
+Subject: [PATCH] Add account-to-account messaging (Supabase + realtime)
+
+---
+ src/App.jsx                                |   3 +
+ src/components/ProfileMenu/ProfileMenu.jsx |   4 +-
+ src/hooks/useAuthUser.js                   |  26 ++
+ src/lib/messages.js                        | 121 ++++++++
+ src/pages/ItemPage/ItemPage.jsx            |  45 ++-
+ src/pages/Messages/Messages.css            | 319 +++++++++++++++++++++
+ src/pages/Messages/Messages.jsx            | 229 +++++++++++++++
+ src/pages/ProfilePage/ProfilePage.css      |  16 +-
+ src/pages/ProfilePage/ProfilePage.jsx      |  25 +-
+ supabase/migrations/20261108_messaging.sql | 244 ++++++++++++++++
+ 10 files changed, 1017 insertions(+), 15 deletions(-)
+ create mode 100644 src/hooks/useAuthUser.js
+ create mode 100644 src/lib/messages.js
+ create mode 100644 src/pages/Messages/Messages.css
+ create mode 100644 src/pages/Messages/Messages.jsx
+ create mode 100644 supabase/migrations/20261108_messaging.sql
+
+diff --git a/src/App.jsx b/src/App.jsx
+index 7651cc2..481ee49 100644
+--- a/src/App.jsx
++++ b/src/App.jsx
+@@ -7,6 +7,7 @@ import SignUp from './pages/SignUp/SignUp'
+ import ProfilePage from './pages/ProfilePage/ProfilePage'
+ import CreateListing from './pages/CreateListing/CreateListing'
+ import Settings from './pages/Settings/Settings'
++import Messages from './pages/Messages/Messages'
+ import './App.css'
+ 
+ function MarketplaceLayout() {
+@@ -41,6 +42,8 @@ const [currentUser, setCurrentUser] = useState(null)
+   <Route path="/signup" element={<SignUp />} />
+   <Route path="/ItemPage/:id" element={<ItemPage />} />
+   <Route path="/profile/:uid" element={<ProfilePage />} />
++  <Route path="/messages" element={<Messages />} />
++  <Route path="/messages/:conversationId" element={<Messages />} />
+   <Route path="/CreateListing" element={<CreateListing currentUser={currentUser} setCurrentUser={setCurrentUser} />} />
+ </Routes>
+     </div>
+diff --git a/src/components/ProfileMenu/ProfileMenu.jsx b/src/components/ProfileMenu/ProfileMenu.jsx
+index 11412be..fe6cad8 100644
+--- a/src/components/ProfileMenu/ProfileMenu.jsx
++++ b/src/components/ProfileMenu/ProfileMenu.jsx
+@@ -16,7 +16,7 @@ function ProfileMenu({ onSelect = () => {}, currentUser, setCurrentUser }) {
+   const MENU_ITEMS = [
+     { label: 'My Profile', action: () => navigate(`/profile/${currentUser?.uid}`) },
+     { label: 'My listings', action: 'listings' },
+-    { label: 'Messages', action: 'messages' },
++    { label: 'Messages', action: () => navigate('/messages') },
+     { label: 'Settings', action: () => navigate(isAuthenticated ? '/settings' : '/login') },
+   ]
+ 
+@@ -78,7 +78,7 @@ function ProfileMenu({ onSelect = () => {}, currentUser, setCurrentUser }) {
+       {isAuthenticated && open && (
+         <ul className="profile-dropdown" role="menu">
+           {MENU_ITEMS.map((item) => (
+-            <li key={item.action} role="none">
++            <li key={item.label} role="none">
+               <button type="button" role="menuitem" onClick={() => typeof item.action === 'function' ? item.action() : choose(item.action)}>
+                 {item.label}
+               </button>
+diff --git a/src/hooks/useAuthUser.js b/src/hooks/useAuthUser.js
+new file mode 100644
+index 0000000..449d9da
+--- /dev/null
++++ b/src/hooks/useAuthUser.js
+@@ -0,0 +1,26 @@
++import { useEffect, useState } from 'react'
++import { supabase } from '../lib/supabase'
++
++// Reads the signed-in user straight from the Supabase session, so pages
++// keep working after a refresh (App's currentUser state resets on reload).
++// Returns { loading, user } where user is the Supabase auth user or null.
++export function useAuthUser() {
++  const [auth, setAuth] = useState({ loading: true, user: null })
++
++  useEffect(() => {
++    let active = true
++    let authChanged = false
++    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
++      authChanged = true
++      if (active) setAuth({ loading: false, user: session?.user ?? null })
++    })
++    supabase.auth.getSession()
++      .then(({ data, error }) => {
++        if (active && !authChanged) setAuth({ loading: false, user: error ? null : data.session?.user ?? null })
++      })
++      .catch(() => { if (active && !authChanged) setAuth({ loading: false, user: null }) })
++    return () => { active = false; subscription.unsubscribe() }
++  }, [])
++
++  return auth
++}
+diff --git a/src/lib/messages.js b/src/lib/messages.js
+new file mode 100644
+index 0000000..2879a6c
+--- /dev/null
++++ b/src/lib/messages.js
+@@ -0,0 +1,121 @@
++// Data layer for messaging. Pages only call these functions.
++// All access control lives in Postgres (see supabase/migrations/*_messaging.sql).
++import { supabase } from './supabase'
++
++const MESSAGE_COLUMNS = `id, conversation_id, sender_id, body, created_at, read_at,
++  listing:listings(id, title)`
++
++/** Open (or create) the thread between the signed-in user and otherUserId. Returns its id. */
++export async function startConversation(otherUserId) {
++  const { data, error } = await supabase.rpc('start_conversation', { other_user: otherUserId })
++  if (error) throw error
++  return data
++}
++
++/** Inbox rows, newest first. */
++export async function listConversations() {
++  const { data, error } = await supabase.rpc('list_conversations')
++  if (error) throw error
++  return data.map((row) => ({
++    id: row.id,
++    otherUserId: row.other_user_id,
++    otherUserName: row.other_user_name ?? 'Student',
++    lastMessage: row.last_message,
++    lastSenderId: row.last_sender_id,
++    lastMessageAt: row.last_message_at,
++    unreadCount: Number(row.unread_count),
++  }))
++}
++
++/** All messages in one thread, oldest first. */
++export async function getMessages(conversationId) {
++  const { data, error } = await supabase
++    .from('messages')
++    .select(MESSAGE_COLUMNS)
++    .eq('conversation_id', conversationId)
++    .order('created_at', { ascending: true })
++  if (error?.code === '22P02') return []
++  if (error) throw error
++  return data.map(toMessage)
++}
++
++/** Send a message. listingId is optional ("about this item"). */
++export async function sendMessage(conversationId, body, listingId = null) {
++  const text = body.trim()
++  if (!text) throw new Error('Message is empty.')
++  if (text.length > 2000) throw new Error('Messages can be at most 2000 characters.')
++
++  const { data, error } = await supabase
++    .from('messages')
++    .insert({ conversation_id: conversationId, body: text, listing_id: listingId })
++    .select(MESSAGE_COLUMNS)
++    .single()
++  if (error) throw error
++  return toMessage(data)
++}
++
++export async function markConversationRead(conversationId) {
++  const { error } = await supabase.rpc('mark_conversation_read', { conv_id: conversationId })
++  if (error) throw error
++}
++
++/**
++ * Live updates for one thread. onInsert receives a message in the same shape
++ * getMessages() returns (listing title is fetched lazily if needed).
++ * Returns an unsubscribe function.
++ */
++export function subscribeToConversation(conversationId, onInsert, onRead = () => {}) {
++  const channel = supabase
++    .channel(`messages:${conversationId}`)
++    .on(
++      'postgres_changes',
++      { event: 'UPDATE', schema: 'public', table: 'messages', filter: `conversation_id=eq.${conversationId}` },
++      ({ new: row }) => onRead(row.id, row.read_at),
++    )
++    .on(
++      'postgres_changes',
++      { event: 'INSERT', schema: 'public', table: 'messages', filter: `conversation_id=eq.${conversationId}` },
++      async ({ new: row }) => {
++        let listing = null
++        if (row.listing_id) {
++          const { data } = await supabase.from('listings').select('id, title').eq('id', row.listing_id).maybeSingle()
++          listing = data
++        }
++        onInsert(toMessage({ ...row, listing }))
++      },
++    )
++    .subscribe()
++  return () => { supabase.removeChannel(channel) }
++}
++
++/** Fires whenever any thread the user can see gets a new message. Returns unsubscribe. */
++export function subscribeToInbox(onChange) {
++  const channel = supabase
++    .channel('inbox')
++    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, () => onChange())
++    .on('postgres_changes', { event: '*', schema: 'public', table: 'conversations' }, () => onChange())
++    .subscribe()
++  return () => { supabase.removeChannel(channel) }
++}
++
++function toMessage(row) {
++  return {
++    id: row.id,
++    conversationId: row.conversation_id,
++    senderId: row.sender_id,
++    body: row.body,
++    createdAt: row.created_at,
++    readAt: row.read_at,
++    listing: row.listing ? { id: row.listing.id, title: row.listing.title } : null,
++  }
++}
++
++export function formatMessageTime(dateString) {
++  const date = new Date(dateString)
++  const now = new Date()
++  const sameDay = date.toDateString() === now.toDateString()
++  if (sameDay) return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
++  const days = Math.floor((now - date) / 86_400_000)
++  if (days < 7) return date.toLocaleDateString('en-US', { weekday: 'short' })
++  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
++}
+diff --git a/src/pages/ItemPage/ItemPage.jsx b/src/pages/ItemPage/ItemPage.jsx
+index f6f7f62..0d8a0c2 100644
+--- a/src/pages/ItemPage/ItemPage.jsx
++++ b/src/pages/ItemPage/ItemPage.jsx
+@@ -6,6 +6,8 @@ import { useListingFilters } from '../../hooks/useListingFilters'
+ import SearchPanel from '../../components/SearchPanel/SearchPanel'
+ import ListingImage from '../../components/ListingImage/ListingImage'
+ import { getListing, formatPrice, conditionLabel, categoryLabel, timeAgo } from '../../lib/listings'
++import { startConversation } from '../../lib/messages'
++import { useAuthUser } from '../../hooks/useAuthUser'
+ 
+ function ItemPage() {
+   const { filters, update } = useListingFilters()
+@@ -17,13 +19,15 @@ function ItemPage() {
+   const [status, setStatus] = useState('loading') // loading | ready | missing | error
+   const [activeImage, setActiveImage] = useState(0)
+   const [zoomed, setZoomed] = useState(false)
+-  const [messageSent, setMessageSent] = useState(false)
++  const { user } = useAuthUser()
++  const [opening, setOpening] = useState(false)
++  const [messageError, setMessageError] = useState('')
+ 
+   useEffect(() => {
+     let ignore = false
+     setStatus('loading')
+     setActiveImage(0)
+-    setMessageSent(false)
++    setMessageError('')
+     getListing(id)
+       .then((row) => {
+         if (ignore) return
+@@ -37,6 +41,22 @@ function ItemPage() {
+   // Go back to the filtered results if the user came from Home; otherwise go Home.
+   const goBack = () => (location.key !== 'default' ? navigate(-1) : navigate('/'))
+ 
++  async function messageSeller() {
++    if (!user) { navigate('/login'); return }
++    setOpening(true)
++    setMessageError('')
++    try {
++      const conversationId = await startConversation(item.sellerId)
++      navigate(`/messages/${conversationId}`, { state: { listing: { id: item.id, title: item.title } } })
++    } catch (err) {
++      console.error('Failed to start conversation:', err)
++      setMessageError('Could not open a chat. Please try again.')
++      setOpening(false)
++    }
++  }
++
++  const isOwnListing = user && item?.sellerId === user.id
++
+   return (
+     <div className="item-page">
+       <SearchPanel />
+@@ -130,15 +150,18 @@ function ItemPage() {
+                 <div className="item-card description-card">
+                   <h2>Description</h2>
+                   <p>{item.description}</p>
+-                  {/* TODO: create a conversation in Supabase and open the chat page */}
+-                  <button
+-                    type="button"
+-                    className="message-button"
+-                    onClick={() => setMessageSent(true)}
+-                    disabled={messageSent}
+-                  >
+-                    {messageSent ? 'Chat coming soon' : `Message ${item.seller.split(' ')[0]}`}
+-                  </button>
++                  {item.sellerId && !isOwnListing && (
++                    <button
++                      type="button"
++                      className="message-button"
++                      onClick={messageSeller}
++                      disabled={opening}
++                    >
++                      {opening ? 'Opening chat…' : `Message ${item.seller.split(' ')[0]}`}
++                    </button>
++                  )}
++                  {isOwnListing && <p className="safety-tip">This is your listing.</p>}
++                  {messageError && <p className="safety-tip" role="alert">{messageError}</p>}
+                   <p className="safety-tip">Meet in a public spot on campus and check the item before paying.</p>
+                 </div>
+               </div>
+diff --git a/src/pages/Messages/Messages.css b/src/pages/Messages/Messages.css
+new file mode 100644
+index 0000000..3313612
+--- /dev/null
++++ b/src/pages/Messages/Messages.css
+@@ -0,0 +1,319 @@
++.messages-layout {
++  display: flex;
++  height: 100vh;
++  width: 100%;
++  text-align: left;
++}
++
++.messages-page {
++  flex: 1;
++  min-width: 0;
++  display: grid;
++  grid-template-columns: 320px 1fr;
++  background: var(--background, #F4FCFB);
++  color: var(--text-primary, #243C4C);
++}
++
++.messages-status {
++  padding: 20px;
++  margin: 0;
++  color: var(--text-secondary, #698696);
++  font-size: 15px;
++}
++
++/* ---------- Inbox ---------- */
++
++.inbox {
++  border-right: 1px solid var(--border, #ACBCBF);
++  background: var(--surface, #fff);
++  display: flex;
++  flex-direction: column;
++  min-height: 0;
++}
++
++.inbox-header {
++  padding: 20px 20px 12px;
++  border-bottom: 1px solid var(--border, #ACBCBF);
++}
++
++.inbox-header h1 {
++  margin: 6px 0 0;
++  font-size: 26px;
++  color: var(--text-primary, #243C4C);
++}
++
++.messages-home {
++  font-size: 14px;
++  color: var(--text-secondary, #698696);
++  text-decoration: none;
++}
++.messages-home:hover { text-decoration: underline; }
++
++.inbox-list {
++  list-style: none;
++  margin: 0;
++  padding: 0;
++  overflow-y: auto;
++  flex: 1;
++}
++
++.inbox-row {
++  display: flex;
++  align-items: center;
++  gap: 12px;
++  padding: 12px 20px;
++  text-decoration: none;
++  color: inherit;
++  border-bottom: 1px solid rgba(172, 188, 191, 0.35);
++}
++.inbox-row:hover { background: rgba(82, 137, 173, 0.08); }
++.inbox-row.active { background: rgba(82, 137, 173, 0.16); }
++.inbox-row:focus-visible { outline: 2px solid #0064A4; outline-offset: -2px; }
++
++.inbox-avatar {
++  width: 40px;
++  height: 40px;
++  flex-shrink: 0;
++  border-radius: 50%;
++  background: var(--primary, #5289AD);
++  color: #fff;
++  display: grid;
++  place-items: center;
++  font-weight: 600;
++}
++
++.inbox-text {
++  flex: 1;
++  min-width: 0;
++  display: flex;
++  flex-direction: column;
++}
++
++.inbox-top {
++  display: flex;
++  justify-content: space-between;
++  gap: 8px;
++}
++
++.inbox-name {
++  font-weight: 600;
++  font-size: 15px;
++  white-space: nowrap;
++  overflow: hidden;
++  text-overflow: ellipsis;
++}
++
++.inbox-time {
++  font-size: 12px;
++  color: var(--text-secondary, #698696);
++  flex-shrink: 0;
++}
++
++.inbox-preview {
++  font-size: 14px;
++  color: var(--text-secondary, #698696);
++  white-space: nowrap;
++  overflow: hidden;
++  text-overflow: ellipsis;
++}
++
++.inbox-row.unread .inbox-preview {
++  color: var(--text-primary, #243C4C);
++  font-weight: 600;
++}
++
++.inbox-badge {
++  min-width: 20px;
++  height: 20px;
++  padding: 0 6px;
++  border-radius: 10px;
++  background: #0064A4;
++  color: #fff;
++  font-size: 12px;
++  font-weight: 600;
++  display: grid;
++  place-items: center;
++}
++
++/* ---------- Thread ---------- */
++
++.thread-pane {
++  min-width: 0;
++  min-height: 0;
++  display: flex;
++  flex-direction: column;
++}
++
++.thread-empty {
++  margin: auto;
++}
++
++.thread {
++  display: flex;
++  flex-direction: column;
++  height: 100%;
++  min-height: 0;
++}
++
++.thread-header {
++  display: flex;
++  align-items: center;
++  gap: 12px;
++  padding: 18px 24px;
++  border-bottom: 1px solid var(--border, #ACBCBF);
++  background: var(--surface, #fff);
++}
++
++.thread-back {
++  display: none;
++  text-decoration: none;
++  color: var(--text-secondary, #698696);
++  font-size: 20px;
++}
++
++.thread-name {
++  font-size: 18px;
++  font-weight: 600;
++  color: var(--text-primary, #243C4C);
++  text-decoration: none;
++}
++a.thread-name:hover { text-decoration: underline; }
++
++.thread-body {
++  flex: 1;
++  overflow-y: auto;
++  padding: 16px 24px;
++}
++
++.message-list {
++  list-style: none;
++  margin: 0;
++  padding: 0;
++  display: flex;
++  flex-direction: column;
++  gap: 10px;
++}
++
++.message {
++  max-width: 70%;
++  align-self: flex-start;
++  display: flex;
++  flex-direction: column;
++  align-items: flex-start;
++}
++.message.mine {
++  align-self: flex-end;
++  align-items: flex-end;
++}
++
++.message-body {
++  margin: 0;
++  padding: 10px 14px;
++  border-radius: 16px 16px 16px 4px;
++  background: var(--surface, #fff);
++  border: 1px solid rgba(172, 188, 191, 0.6);
++  font-size: 15px;
++  line-height: 1.4;
++  white-space: pre-wrap;
++  overflow-wrap: anywhere;
++}
++.message.mine .message-body {
++  background: #0064A4;
++  border-color: #0064A4;
++  color: #fff;
++  border-radius: 16px 16px 4px 16px;
++}
++
++.message-listing {
++  font-size: 12px;
++  margin-bottom: 4px;
++  color: var(--primary, #5289AD);
++  text-decoration: none;
++}
++.message-listing:hover { text-decoration: underline; }
++
++.message-meta {
++  margin-top: 3px;
++  font-size: 11px;
++  color: var(--text-secondary, #698696);
++}
++
++/* ---------- Composer ---------- */
++
++.composer {
++  padding: 12px 24px 18px;
++  border-top: 1px solid var(--border, #ACBCBF);
++  background: var(--surface, #fff);
++}
++
++.composer-listing {
++  display: flex;
++  justify-content: space-between;
++  align-items: center;
++  gap: 8px;
++  margin-bottom: 8px;
++  padding: 6px 10px;
++  border-radius: 8px;
++  background: rgba(82, 137, 173, 0.12);
++  font-size: 13px;
++}
++.composer-listing button {
++  border: none;
++  background: none;
++  font-size: 18px;
++  line-height: 1;
++  cursor: pointer;
++  color: var(--text-secondary, #698696);
++}
++
++.composer-row {
++  display: flex;
++  gap: 10px;
++  align-items: flex-end;
++}
++
++.composer textarea {
++  flex: 1;
++  resize: none;
++  min-height: 42px;
++  max-height: 140px;
++  padding: 10px 12px;
++  border-radius: 10px;
++  border: 1px solid var(--border, #ACBCBF);
++  font: inherit;
++  font-size: 15px;
++  color: inherit;
++  background: var(--surface, #fff);
++  field-sizing: content;
++}
++.composer textarea:focus { outline: 2px solid #0064A4; outline-offset: 0; }
++
++.composer button[type='submit'] {
++  padding: 10px 18px;
++  border: none;
++  border-radius: 10px;
++  background: #0064A4;
++  color: #fff;
++  font-weight: 600;
++  font-size: 15px;
++  cursor: pointer;
++}
++.composer button[type='submit']:hover:not(:disabled) { background: #004E80; }
++.composer button[type='submit']:disabled { background: var(--soft-gray, #ACBCBF); cursor: default; }
++
++.composer-error {
++  margin: 8px 0 0;
++  color: #b42318;
++  font-size: 13px;
++}
++
++/* ---------- Narrow screens: one pane at a time ---------- */
++
++@media (max-width: 760px) {
++  .messages-page { grid-template-columns: 1fr; }
++  .messages-page.has-thread .inbox { display: none; }
++  .messages-page:not(.has-thread) .thread-pane { display: none; }
++  .thread-back { display: inline; }
++  .message { max-width: 85%; }
++  .thread-body, .composer { padding-left: 16px; padding-right: 16px; }
++}
+diff --git a/src/pages/Messages/Messages.jsx b/src/pages/Messages/Messages.jsx
+new file mode 100644
+index 0000000..7dd44c8
+--- /dev/null
++++ b/src/pages/Messages/Messages.jsx
+@@ -0,0 +1,229 @@
++import './Messages.css'
++import { useCallback, useEffect, useRef, useState } from 'react'
++import { Link, Navigate, useLocation, useNavigate, useParams } from 'react-router-dom'
++import Sidebar from '../../components/Sidebar/Sidebar'
++import { useAuthUser } from '../../hooks/useAuthUser'
++import {
++  listConversations,
++  getMessages,
++  sendMessage,
++  markConversationRead,
++  subscribeToConversation,
++  subscribeToInbox,
++  formatMessageTime,
++} from '../../lib/messages'
++
++function Messages() {
++  const { conversationId } = useParams()
++  const { loading: authLoading, user } = useAuthUser()
++
++  const [conversations, setConversations] = useState([])
++  const [inboxStatus, setInboxStatus] = useState('loading') // loading | ready | error
++
++  const refreshInbox = useCallback(() => {
++    return listConversations()
++      .then((rows) => { setConversations(rows); setInboxStatus('ready') })
++      .catch((err) => { console.error('Failed to load conversations:', err); setInboxStatus('error') })
++  }, [])
++
++  useEffect(() => {
++    if (!user) return
++    refreshInbox()
++    return subscribeToInbox(refreshInbox)
++  }, [user, refreshInbox])
++
++  if (authLoading) return <main className="messages-page"><p className="messages-status">Loading…</p></main>
++  if (!user) return <Navigate to="/login" replace />
++
++  const active = conversations.find((c) => c.id === conversationId)
++
++  return (
++    <div className="messages-layout">
++      <Sidebar />
++      <main className={`messages-page${conversationId ? ' has-thread' : ''}`}>
++        <section className="inbox" aria-label="Conversations">
++          <div className="inbox-header">
++            <Link className="messages-home" to="/">← Home</Link>
++            <h1>Messages</h1>
++          </div>
++
++          {inboxStatus === 'loading' && <p className="messages-status">Loading…</p>}
++          {inboxStatus === 'error' && <p className="messages-status">Could not load messages. Try refreshing.</p>}
++          {inboxStatus === 'ready' && conversations.length === 0 && (
++            <p className="messages-status">No messages yet. Find something you like and message the seller.</p>
++          )}
++
++          <ul className="inbox-list">
++            {conversations.map((c) => (
++              <li key={c.id}>
++                <Link
++                  to={`/messages/${c.id}`}
++                  className={`inbox-row${c.id === conversationId ? ' active' : ''}${c.unreadCount ? ' unread' : ''}`}
++                >
++                  <span className="inbox-avatar" aria-hidden="true">{c.otherUserName.charAt(0).toUpperCase()}</span>
++                  <span className="inbox-text">
++                    <span className="inbox-top">
++                      <span className="inbox-name">{c.otherUserName}</span>
++                      <span className="inbox-time">{formatMessageTime(c.lastMessageAt)}</span>
++                    </span>
++                    <span className="inbox-preview">
++                      {c.lastMessage
++                        ? `${c.lastSenderId === user.id ? 'You: ' : ''}${c.lastMessage}`
++                        : 'No messages yet'}
++                    </span>
++                  </span>
++                  {c.unreadCount > 0 && (
++                    <span className="inbox-badge" aria-label={`${c.unreadCount} unread`}>{c.unreadCount}</span>
++                  )}
++                </Link>
++              </li>
++            ))}
++          </ul>
++        </section>
++
++        <section className="thread-pane" aria-label="Conversation">
++          {conversationId
++            ? <Thread
++                key={conversationId}
++                conversationId={conversationId}
++                me={user.id}
++                other={active}
++                onActivity={refreshInbox}
++              />
++            : <p className="messages-status thread-empty">Select a conversation.</p>}
++        </section>
++      </main>
++    </div>
++  )
++}
++
++function Thread({ conversationId, me, other, onActivity }) {
++  const location = useLocation()
++  const navigate = useNavigate()
++  // Set when the user arrives from an item page via "Message seller".
++  const [aboutListing, setAboutListing] = useState(location.state?.listing ?? null)
++  const [messages, setMessages] = useState([])
++  const [status, setStatus] = useState('loading') // loading | ready | error
++  const [draft, setDraft] = useState('')
++  const [sending, setSending] = useState(false)
++  const [sendError, setSendError] = useState('')
++  const bottomRef = useRef(null)
++
++  const addMessage = useCallback((msg) => {
++    setMessages((prev) => (prev.some((m) => m.id === msg.id) ? prev : [...prev, msg]))
++  }, [])
++
++  useEffect(() => {
++    let ignore = false
++    getMessages(conversationId)
++      .then((rows) => {
++        if (ignore) return
++        setMessages(rows)
++        setStatus('ready')
++        markConversationRead(conversationId).then(onActivity).catch(() => {})
++      })
++      .catch((err) => { console.error('Failed to load messages:', err); if (!ignore) setStatus('error') })
++
++    const unsubscribe = subscribeToConversation(conversationId, (msg) => {
++      addMessage(msg)
++      if (msg.senderId !== me) markConversationRead(conversationId).then(onActivity).catch(() => {})
++    }, (id, readAt) => {
++      setMessages((prev) => prev.map((m) => (m.id === id ? { ...m, readAt } : m)))
++    })
++    return () => { ignore = true; unsubscribe() }
++  }, [conversationId, me, addMessage, onActivity])
++
++  useEffect(() => {
++    bottomRef.current?.scrollIntoView({ block: 'end' })
++  }, [messages.length])
++
++  async function handleSend(event) {
++    event.preventDefault()
++    if (!draft.trim() || sending) return
++    setSending(true)
++    setSendError('')
++    try {
++      const msg = await sendMessage(conversationId, draft, aboutListing?.id ?? null)
++      addMessage(msg)
++      setDraft('')
++      setAboutListing(null)
++      // Drop the listing from history state so a refresh doesn't re-attach it.
++      if (location.state?.listing) navigate(location.pathname, { replace: true, state: null })
++      onActivity()
++    } catch (err) {
++      console.error('Failed to send message:', err)
++      setSendError(err.message?.includes('2000') ? err.message : 'Could not send. Please try again.')
++    } finally {
++      setSending(false)
++    }
++  }
++
++  function handleKeyDown(event) {
++    if (event.key === 'Enter' && !event.shiftKey) handleSend(event)
++  }
++
++  return (
++    <div className="thread">
++      <header className="thread-header">
++        <Link className="thread-back" to="/messages" aria-label="Back to conversations">←</Link>
++        {other
++          ? <Link className="thread-name" to={`/profile/${other.otherUserId}`}>{other.otherUserName}</Link>
++          : <span className="thread-name">Conversation</span>}
++      </header>
++
++      <div className="thread-body">
++        {status === 'loading' && <p className="messages-status">Loading…</p>}
++        {status === 'error' && <p className="messages-status">Could not load this conversation.</p>}
++        {status === 'ready' && messages.length === 0 && (
++          <p className="messages-status">Say hi 👋</p>
++        )}
++        <ol className="message-list">
++          {messages.map((m) => {
++            const mine = m.senderId === me
++            return (
++              <li key={m.id} className={`message${mine ? ' mine' : ''}`}>
++                {m.listing && (
++                  <Link className="message-listing" to={`/ItemPage/${m.listing.id}`}>
++                    About: {m.listing.title}
++                  </Link>
++                )}
++                <p className="message-body">{m.body}</p>
++                <span className="message-meta">
++                  {formatMessageTime(m.createdAt)}
++                  {mine && m.readAt && ' · Seen'}
++                </span>
++              </li>
++            )
++          })}
++        </ol>
++        <div ref={bottomRef} />
++      </div>
++
++      <form className="composer" onSubmit={handleSend}>
++        {aboutListing && (
++          <div className="composer-listing">
++            <span>About: <strong>{aboutListing.title}</strong></span>
++            <button type="button" aria-label="Remove item reference" onClick={() => setAboutListing(null)}>×</button>
++          </div>
++        )}
++        <div className="composer-row">
++          <textarea
++            value={draft}
++            onChange={(e) => setDraft(e.target.value)}
++            onKeyDown={handleKeyDown}
++            placeholder="Write a message…"
++            rows={1}
++            maxLength={2000}
++            aria-label="Message"
++          />
++          <button type="submit" disabled={sending || !draft.trim()}>
++            {sending ? 'Sending…' : 'Send'}
++          </button>
++        </div>
++        {sendError && <p className="composer-error" role="alert">{sendError}</p>}
++      </form>
++    </div>
++  )
++}
++
++export default Messages
+diff --git a/src/pages/ProfilePage/ProfilePage.css b/src/pages/ProfilePage/ProfilePage.css
+index 3b0570d..4765ef3 100644
+--- a/src/pages/ProfilePage/ProfilePage.css
++++ b/src/pages/ProfilePage/ProfilePage.css
+@@ -278,4 +278,18 @@
+     padding-top: 12px;
+     border-radius: 12px;
+     border: var(--border) solid 1px;
+-}
+\ No newline at end of file
++}
++.profile-message-button {
++    margin-left: auto;
++    padding: 10px 22px;
++    border: none;
++    border-radius: 10px;
++    background: #0064A4;
++    color: #fff;
++    font-size: 15px;
++    font-weight: 600;
++    cursor: pointer;
++}
++.profile-message-button:hover:not(:disabled) { background: #004E80; }
++.profile-message-button:disabled { background: var(--soft-gray); cursor: default; }
++.profile-message-button:focus-visible { outline: 2px solid #0064A4; outline-offset: 2px; }
+diff --git a/src/pages/ProfilePage/ProfilePage.jsx b/src/pages/ProfilePage/ProfilePage.jsx
+index c551af8..0b51463 100644
+--- a/src/pages/ProfilePage/ProfilePage.jsx
++++ b/src/pages/ProfilePage/ProfilePage.jsx
+@@ -1,12 +1,29 @@
+ import './ProfilePage.css'
+ import ListingImage from '../../components/ListingImage/ListingImage'
+-import { Link, useParams } from 'react-router-dom'
++import { Link, useNavigate, useParams } from 'react-router-dom'
+ import { useEffect, useState } from 'react'
+ import { getProfile, getListingsBySeller, formatPrice } from '../../lib/listings'
++import { startConversation } from '../../lib/messages'
++import { useAuthUser } from '../../hooks/useAuthUser'
+ import Sidebar from '../../components/Sidebar/Sidebar'
+ 
+ function Profile() {
+     const { uid } = useParams()
++    const navigate = useNavigate()
++    const { user: me } = useAuthUser()
++    const [opening, setOpening] = useState(false)
++
++    async function messageUser() {
++        if (!me) { navigate('/login'); return }
++        setOpening(true)
++        try {
++            const conversationId = await startConversation(uid)
++            navigate(`/messages/${conversationId}`)
++        } catch (err) {
++            console.error('Failed to start conversation:', err)
++            setOpening(false)
++        }
++    }
+  
+     const [result, setResult] = useState({ uid: null, user: null, listings: [], failed: false })
+  
+@@ -66,6 +83,12 @@ function Profile() {
+                             {user.school}
+                         </p>
+                     </div>
++
++                    {me?.id !== uid && (
++                        <button type="button" className="profile-message-button" onClick={messageUser} disabled={opening}>
++                            {opening ? 'Opening…' : 'Message'}
++                        </button>
++                    )}
+                 </div>
+ 
+ 
+diff --git a/supabase/migrations/20261108_messaging.sql b/supabase/migrations/20261108_messaging.sql
+new file mode 100644
+index 0000000..39d7218
+--- /dev/null
++++ b/supabase/migrations/20261108_messaging.sql
+@@ -0,0 +1,244 @@
++-- =============================================================
++-- UniMarket: account-to-account messaging
++-- Run this once in the Supabase SQL editor (or `supabase db push`).
++--
++-- Model
++--   conversations : one thread per pair of users (user_a < user_b)
++--   messages      : rows in a thread; optionally reference the listing
++--                   the message is about ("Is this still available?")
++--
++-- Security model (all enforced by Postgres, not the frontend)
++--   * Only the two participants can see a conversation or its messages.
++--   * You can only send messages as yourself, into a thread you belong to.
++--   * Messages are immutable from the client: no UPDATE/DELETE grants.
++--     Read receipts go through mark_conversation_read(), which only
++--     touches read_at on messages sent TO you.
++--   * Threads are created only through start_conversation(), which
++--     refuses to create a thread with yourself or a non-existent user.
++-- =============================================================
++
++-- ---------- Tables ----------
++
++create table if not exists public.conversations (
++  id               uuid primary key default gen_random_uuid(),
++  user_a           uuid not null references public.profiles(id) on delete cascade,
++  user_b           uuid not null references public.profiles(id) on delete cascade,
++  created_at       timestamptz not null default now(),
++  last_message_at  timestamptz not null default now(),
++  constraint conversations_ordered_pair check (user_a < user_b),
++  constraint conversations_unique_pair unique (user_a, user_b)
++);
++
++create index if not exists conversations_user_a_idx on public.conversations (user_a, last_message_at desc);
++create index if not exists conversations_user_b_idx on public.conversations (user_b, last_message_at desc);
++
++create table if not exists public.messages (
++  id               uuid primary key default gen_random_uuid(),
++  conversation_id  uuid not null references public.conversations(id) on delete cascade,
++  sender_id        uuid not null default auth.uid() references public.profiles(id) on delete cascade,
++  listing_id       uuid references public.listings(id) on delete set null,
++  body             text not null,
++  created_at       timestamptz not null default now(),
++  read_at          timestamptz,
++  constraint messages_body_length check (char_length(btrim(body)) between 1 and 2000)
++);
++
++create index if not exists messages_conversation_idx on public.messages (conversation_id, created_at);
++
++-- ---------- Helper: is the current user in this conversation? ----------
++-- SECURITY DEFINER so policies on messages can check membership without
++-- recursing through the conversations policy.
++
++create or replace function public.is_conversation_member(conv_id uuid)
++returns boolean
++language sql
++stable
++security definer
++set search_path = public
++as $$
++  select exists (
++    select 1 from public.conversations c
++    where c.id = conv_id
++      and auth.uid() in (c.user_a, c.user_b)
++  );
++$$;
++
++-- ---------- Row Level Security ----------
++
++alter table public.conversations enable row level security;
++alter table public.messages      enable row level security;
++
++drop policy if exists "members read conversations" on public.conversations;
++create policy "members read conversations"
++  on public.conversations for select
++  to authenticated
++  using (auth.uid() in (user_a, user_b));
++
++drop policy if exists "members read messages" on public.messages;
++create policy "members read messages"
++  on public.messages for select
++  to authenticated
++  using (public.is_conversation_member(conversation_id));
++
++drop policy if exists "members send messages" on public.messages;
++create policy "members send messages"
++  on public.messages for insert
++  to authenticated
++  with check (
++    sender_id = auth.uid()
++    and read_at is null
++    and public.is_conversation_member(conversation_id)
++  );
++
++-- Lock down what the client role can do at the privilege level too.
++-- Conversations are created only via start_conversation(); messages are
++-- insert-only; read receipts only via mark_conversation_read().
++revoke all on public.conversations from anon, authenticated;
++revoke all on public.messages      from anon, authenticated;
++grant select on public.conversations to authenticated;
++grant select on public.messages to authenticated;
++grant insert (conversation_id, body, listing_id) on public.messages to authenticated;
++
++-- ---------- Keep last_message_at fresh ----------
++
++create or replace function public.bump_conversation_timestamp()
++returns trigger
++language plpgsql
++security definer
++set search_path = public
++as $$
++begin
++  update public.conversations
++     set last_message_at = new.created_at
++   where id = new.conversation_id;
++  return new;
++end;
++$$;
++
++drop trigger if exists messages_bump_conversation on public.messages;
++create trigger messages_bump_conversation
++  after insert on public.messages
++  for each row execute function public.bump_conversation_timestamp();
++
++-- ---------- RPC: start (or reopen) a conversation with another user ----------
++
++create or replace function public.start_conversation(other_user uuid)
++returns uuid
++language plpgsql
++security definer
++set search_path = public
++as $$
++declare
++  me     uuid := auth.uid();
++  a      uuid;
++  b      uuid;
++  conv   uuid;
++begin
++  if me is null then
++    raise exception 'You must be signed in to send messages.' using errcode = '28000';
++  end if;
++  if other_user is null or other_user = me then
++    raise exception 'You cannot message yourself.' using errcode = '22023';
++  end if;
++  if not exists (select 1 from public.profiles where id = other_user) then
++    raise exception 'That user does not exist.' using errcode = '22023';
++  end if;
++
++  a := least(me, other_user);
++  b := greatest(me, other_user);
++
++  insert into public.conversations (user_a, user_b)
++  values (a, b)
++  on conflict (user_a, user_b) do nothing
++  returning id into conv;
++
++  if conv is null then
++    select id into conv from public.conversations where user_a = a and user_b = b;
++  end if;
++
++  return conv;
++end;
++$$;
++
++-- ---------- RPC: mark everything sent to me in a thread as read ----------
++
++create or replace function public.mark_conversation_read(conv_id uuid)
++returns void
++language sql
++security definer
++set search_path = public
++as $$
++  update public.messages
++     set read_at = now()
++   where conversation_id = conv_id
++     and sender_id <> auth.uid()
++     and read_at is null
++     and public.is_conversation_member(conv_id);
++$$;
++
++-- ---------- RPC: inbox list with the other person's name + unread count ----------
++-- SECURITY INVOKER, so RLS above still decides which rows are visible.
++
++create or replace function public.list_conversations()
++returns table (
++  id               uuid,
++  other_user_id    uuid,
++  other_user_name  text,
++  last_message     text,
++  last_sender_id   uuid,
++  last_message_at  timestamptz,
++  unread_count     bigint
++)
++language sql
++stable
++security invoker
++set search_path = public
++as $$
++  select
++    c.id,
++    other.id,
++    other.display_name,
++    lm.body,
++    lm.sender_id,
++    c.last_message_at,
++    (select count(*) from public.messages m
++      where m.conversation_id = c.id
++        and m.sender_id <> auth.uid()
++        and m.read_at is null)
++  from public.conversations c
++  join public.profiles other
++    on other.id = case when c.user_a = auth.uid() then c.user_b else c.user_a end
++  left join lateral (
++    select m.body, m.sender_id
++      from public.messages m
++     where m.conversation_id = c.id
++     order by m.created_at desc
++     limit 1
++  ) lm on true
++  where auth.uid() in (c.user_a, c.user_b)
++  order by c.last_message_at desc;
++$$;
++
++revoke all on function public.start_conversation(uuid)     from public, anon;
++revoke all on function public.mark_conversation_read(uuid) from public, anon;
++revoke all on function public.list_conversations()         from public, anon;
++revoke all on function public.is_conversation_member(uuid) from public, anon;
++grant execute on function public.start_conversation(uuid)     to authenticated;
++grant execute on function public.mark_conversation_read(uuid) to authenticated;
++grant execute on function public.list_conversations()         to authenticated;
++grant execute on function public.is_conversation_member(uuid) to authenticated;
++
++-- ---------- Realtime ----------
++-- Realtime respects RLS, so subscribers only receive their own threads.
++
++do $$
++begin
++  begin
++    alter publication supabase_realtime add table public.messages;
++  exception when duplicate_object then null;
++  end;
++  begin
++    alter publication supabase_realtime add table public.conversations;
++  exception when duplicate_object then null;
++  end;
++end $$;
+-- 
+2.43.0
+

@@ -1,12 +1,29 @@
 import './ProfilePage.css'
 import ListingImage from '../../components/ListingImage/ListingImage'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { getProfile, getListingsBySeller, formatPrice } from '../../lib/listings'
+import { startConversation } from '../../lib/messages'
+import { useAuthUser } from '../../hooks/useAuthUser'
 import Sidebar from '../../components/Sidebar/Sidebar'
 
 function Profile() {
     const { uid } = useParams()
+    const navigate = useNavigate()
+    const { user: me } = useAuthUser()
+    const [opening, setOpening] = useState(false)
+
+    async function messageUser() {
+        if (!me) { navigate('/login'); return }
+        setOpening(true)
+        try {
+            const conversationId = await startConversation(uid)
+            navigate(`/messages/${conversationId}`)
+        } catch (err) {
+            console.error('Failed to start conversation:', err)
+            setOpening(false)
+        }
+    }
  
     const [result, setResult] = useState({ uid: null, user: null, listings: [], failed: false })
  
@@ -66,6 +83,12 @@ function Profile() {
                             {user.school}
                         </p>
                     </div>
+
+                    {me?.id !== uid && (
+                        <button type="button" className="profile-message-button" onClick={messageUser} disabled={opening}>
+                            {opening ? 'Opening…' : 'Message'}
+                        </button>
+                    )}
                 </div>
 
 

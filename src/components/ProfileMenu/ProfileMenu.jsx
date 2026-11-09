@@ -16,7 +16,7 @@ function ProfileMenu({ onSelect = () => {}, currentUser, setCurrentUser }) {
   const MENU_ITEMS = [
     { label: 'My Profile', action: () => navigate(`/profile/${currentUser?.uid}`) },
     { label: 'My listings', action: 'listings' },
-    { label: 'Messages', action: 'messages' },
+    { label: 'Messages', action: () => navigate('/messages') },
     { label: 'Settings', action: () => navigate(isAuthenticated ? '/settings' : '/login') },
   ]
 
@@ -78,7 +78,7 @@ function ProfileMenu({ onSelect = () => {}, currentUser, setCurrentUser }) {
       {isAuthenticated && open && (
         <ul className="profile-dropdown" role="menu">
           {MENU_ITEMS.map((item) => (
-            <li key={item.action} role="none">
+            <li key={item.label} role="none">
               <button type="button" role="menuitem" onClick={() => typeof item.action === 'function' ? item.action() : choose(item.action)}>
                 {item.label}
               </button>
