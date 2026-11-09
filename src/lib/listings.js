@@ -99,7 +99,7 @@ export async function createListing(fields, files = []) {
 export async function getProfile(userId) {
   const { data, error } = await supabase
     .from('profiles')
-    .select('id, display_name, school, bio, created_at')
+    .select('id, display_name, school, bio, created_at, avatar_path')
     .eq('id', userId)
     .maybeSingle()
  
@@ -111,6 +111,7 @@ export async function getProfile(userId) {
     displayName: data.display_name,
     school: data.school,
     bio: data.bio,
+    avatarPath: data.avatar_path,
     createdAt: data.created_at,
   }
 }

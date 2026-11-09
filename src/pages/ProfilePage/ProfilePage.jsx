@@ -1,3 +1,4 @@
+import { profilePictureUrl } from '../../lib/profilePictures'
 import './ProfilePage.css'
 import ListingImage from '../../components/ListingImage/ListingImage'
 import { Link, useNavigate, useParams } from 'react-router-dom'
@@ -73,7 +74,9 @@ function Profile() {
                 <div className="profile-card">
                     <div className="profile-top">
                         <div className="profile-avatar">
-                            <span>{user.displayName.charAt(0).toUpperCase()}</span>
+                            {user.avatarPath
+                                ? <img src={profilePictureUrl(user.avatarPath)} alt="" />
+                                : <span>{user.displayName?.charAt(0).toUpperCase()}</span>}
                         </div>
  
                     <div className="profile-main-info">

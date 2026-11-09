@@ -77,7 +77,7 @@ body,
   border: 1px solid var(--border);
   border-radius: 8px;
   font: inherit;
-  background: white;
+  background: var(--surface);
 }
 
 .form-group textarea {
@@ -113,7 +113,7 @@ body,
 }
 
 .cancel-listing-button {
-  background: white;
+  background: var(--surface);
   border: 1px solid var(--border);
 }
 
@@ -136,7 +136,7 @@ body,
   border: 1px solid var(--border);
   border-radius: 8px;
 
-  background: white;
+  background: var(--surface);
   overflow: hidden;
 }
 

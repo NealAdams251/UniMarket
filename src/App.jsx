@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Home from './pages/Home/Home'
 import ItemPage from './pages/ItemPage/ItemPage'
 import Login from './pages/LogIn/LogIn'
@@ -16,6 +16,12 @@ function MarketplaceLayout() {
 const isAuthPage = pathname === '/login' || pathname === '/signup'
 const showHeader = isAuthPage
 const [currentUser, setCurrentUser] = useState(null)
+  const [darkMode, setDarkMode] = useState(() => localStorage.getItem('unimarket-theme') === 'dark')
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = darkMode ? 'dark' : 'light'
+    localStorage.setItem('unimarket-theme', darkMode ? 'dark' : 'light')
+  }, [darkMode])
 
   return (
     <div className={`marketplace-shell${showHeader ? '' : ' marketplace-shell-full-height'}${isAuthPage ? ' marketplace-shell-auth' : ''}`}>
@@ -39,7 +45,7 @@ const [currentUser, setCurrentUser] = useState(null)
     path="/login"
     element={<Login setCurrentUser={setCurrentUser} />}
   />
-  <Route path="/settings" element={<Settings setCurrentUser={setCurrentUser} />} />
+  <Route path="/settings" element={<Settings setCurrentUser={setCurrentUser} darkMode={darkMode} setDarkMode={setDarkMode} />} />
   <Route path="/signup" element={<SignUp />} />
   <Route path="/ItemPage/:id" element={<ItemPage />} />
   <Route path="/profile/:uid" element={<ProfilePage />} />

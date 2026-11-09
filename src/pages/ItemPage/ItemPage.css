@@ -106,7 +106,7 @@ body {
 
 .item-card,
 .additional-info {
-    background-color: white;
+    background-color: var(--surface);
     border: 1px solid var(--border);
     border-radius: 12px;
     padding: 24px;
