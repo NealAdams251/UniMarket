@@ -1,14 +1,16 @@
 import './CreateListing.css'
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
 import { CONDITIONS } from '../../data/conditions'
 import { CATEGORIES } from '../../data/categories'
 import Sidebar from '../../components/Sidebar/Sidebar'
 
-
+// Used for both "Sell an Item" (/CreateListing) and editing (/EditListing/:id).
 function CreateListing({ currentUser }) {
   const navigate = useNavigate()
+  const { id: editId } = useParams()
+  const isEditing = Boolean(editId)
 
   const [title, setTitle] = useState('')
   const [image, setImage] = useState(null)
@@ -18,9 +20,48 @@ function CreateListing({ currentUser }) {
   const [description, setDescription] = useState('')
   const [meetupSpot, setMeetupSpot] = useState('')
   const [category, setCategory] = useState('')
+  const [existingImages, setExistingImages] = useState([])
 
   const [errorMessage, setErrorMessage] = useState('')
   const [loading, setLoading] = useState(false)
+  const [loadingListing, setLoadingListing] = useState(isEditing)
+
+  // In edit mode, load the listing and fill in the form.
+  useEffect(() => {
+    if (!isEditing || !currentUser) return
+    let ignore = false
+
+    supabase
+      .from('listings')
+      .select('*, listing_images (storage_path, sort_order)')
+      .eq('id', editId)
+      .maybeSingle()
+      .then(({ data, error }) => {
+        if (ignore) return
+        if (error || !data) {
+          setErrorMessage('Could not load this listing.')
+        } else if (data.seller_id !== currentUser.uid) {
+          setErrorMessage('You can only edit your own listings.')
+        } else {
+          const images = [...(data.listing_images || [])].sort((a, b) => a.sort_order - b.sort_order)
+          setTitle(data.title ?? '')
+          setPrice(data.price ?? '')
+          setCondition(data.condition ?? '')
+          setCategory(data.category ?? '')
+          setDescription(data.description ?? '')
+          setMeetupSpot(data.meetup_spot ?? '')
+          setExistingImages(images)
+          if (images[0]) {
+            setImagePreview(
+              supabase.storage.from('listing-images').getPublicUrl(images[0].storage_path).data.publicUrl
+            )
+          }
+        }
+        setLoadingListing(false)
+      })
+
+    return () => { ignore = true }
+  }, [isEditing, editId, currentUser])
 
   function handleImageChange(e) {
     const file = e.target.files[0]
@@ -40,9 +81,12 @@ function CreateListing({ currentUser }) {
     return
   }
 
+  // A new photo is optional when editing (the current one is kept).
+  const hasImage = image || (isEditing && existingImages.length > 0)
+
   if (
     !title.trim() ||
-    !image ||
+    !hasImage ||
     !price ||
     !condition ||
     !description.trim() ||
@@ -62,64 +106,108 @@ function CreateListing({ currentUser }) {
 
   setLoading(true)
 
+  const fields = {
+    title: title.trim(),
+    description: description.trim(),
+    price: numericPrice,
+    category,
+    condition,
+    meetup_spot: meetupSpot.trim(),
+  }
+
   try {
-    // 1. Create listing first
+    let listing
 
-    const { data: listing, error: listingError } = await supabase
-      .from('listings')
-      .insert({
-        seller_id: currentUser.uid,
-        title: title.trim(),
-        description: description.trim(),
-        price: numericPrice,
-        category,
-        condition,
-        meetup_spot: meetupSpot.trim(),
-        status: 'active',
-      })
-      .select()
-      .single()
+    if (isEditing) {
+      // 1. Update the listing (only the seller's own row)
+      const { data, error: updateError } = await supabase
+        .from('listings')
+        .update(fields)
+        .eq('id', editId)
+        .eq('seller_id', currentUser.uid)
+        .select()
 
-    if (listingError) {
-      throw listingError
+      if (updateError) {
+        throw updateError
+      }
+
+      // Supabase returns no rows (instead of an error) when a policy blocks the update.
+      if (!data?.length) {
+        throw new Error('Could not save changes. You may not have permission to edit this listing.')
+      }
+
+      listing = data[0]
+    } else {
+      // 1. Create listing first
+      const { data, error: listingError } = await supabase
+        .from('listings')
+        .insert({
+          ...fields,
+          seller_id: currentUser.uid,
+          status: 'active',
+        })
+        .select()
+        .single()
+
+      if (listingError) {
+        throw listingError
+      }
+
+      listing = data
     }
 
-    // 2. Upload image
-    const fileExtension = image.name.split('.').pop()
-    const fileName = `${crypto.randomUUID()}.${fileExtension}`
+    if (image) {
+      // 2. Upload image
+      const fileExtension = image.name.split('.').pop()
+      const fileName = `${crypto.randomUUID()}.${fileExtension}`
 
-    const storagePath =
-      `${currentUser.uid}/${listing.id}/${fileName}`
+      const storagePath =
+        `${currentUser.uid}/${listing.id}/${fileName}`
 
-    const { error: uploadError } = await supabase.storage
-      .from('listing-images')
-      .upload(storagePath, image)
+      const { error: uploadError } = await supabase.storage
+        .from('listing-images')
+        .upload(storagePath, image)
 
-    if (uploadError) {
-      throw uploadError
+      if (uploadError) {
+        throw uploadError
+      }
+
+      // 3. When editing, remove the old photo(s) before saving the new one
+      if (isEditing && existingImages.length > 0) {
+        const { error: oldRowsError } = await supabase
+          .from('listing_images')
+          .delete()
+          .eq('listing_id', listing.id)
+
+        if (oldRowsError) {
+          throw oldRowsError
+        }
+
+        await supabase.storage
+          .from('listing-images')
+          .remove(existingImages.map((img) => img.storage_path))
+      }
+
+      // 4. Store image reference in listing_images table
+      const { error: imageRowError } = await supabase
+        .from('listing_images')
+        .insert({
+          listing_id: listing.id,
+          storage_path: storagePath,
+          sort_order: 0,
+        })
+
+      if (imageRowError) {
+        throw imageRowError
+      }
     }
 
-    // 3. Store image reference in listing_images table
-    const { error: imageRowError } = await supabase
-      .from('listing_images')
-      .insert({
-        listing_id: listing.id,
-        storage_path: storagePath,
-        sort_order: 0,
-      })
-
-    if (imageRowError) {
-      throw imageRowError
-    }
-
-    console.log('Listing created:', listing)
-
-    navigate('/')
+    navigate(isEditing ? `/MyListings/${currentUser.uid}` : '/')
 
   } catch (error) {
-    console.error('Error creating listing:', error)
+    console.error(isEditing ? 'Error updating listing:' : 'Error creating listing:', error)
     setErrorMessage(
-      error.message || 'Could not create listing.'
+      error.message || (isEditing ? 'Could not save changes.' : 'Could not create listing.')
     )
   } finally {
     setLoading(false)
@@ -134,7 +222,7 @@ function CreateListing({ currentUser }) {
       <main className="create-listing-page">
         <section className="create-listing-panel">
 
-          <h1>Sell an Item</h1>
+          <h1>{isEditing ? 'Edit Listing' : 'Sell an Item'}</h1>
 
           <form
             className="create-listing-form"
@@ -279,7 +367,7 @@ function CreateListing({ currentUser }) {
               <button
                 type="button"
                 className="cancel-listing-button"
-                onClick={() => navigate('/')}
+                onClick={() => navigate(isEditing && currentUser ? `/MyListings/${currentUser.uid}` : '/')}
               >
                 Cancel
               </button>
@@ -287,11 +375,11 @@ function CreateListing({ currentUser }) {
               <button
                 type="submit"
                 className="create-listing-button"
-                disabled={loading}
+                disabled={loading || loadingListing}
               >
                 {loading
-                  ? 'Creating Listing...'
-                  : 'Create Listing'}
+                  ? (isEditing ? 'Saving...' : 'Creating Listing...')
+                  : (isEditing ? 'Save Changes' : 'Create Listing')}
               </button>
             </div>
 

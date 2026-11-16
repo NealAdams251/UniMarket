@@ -52,6 +52,7 @@ const [currentUser, setCurrentUser] = useState(null)
   <Route path="/messages" element={<Messages />} />
   <Route path="/messages/:conversationId" element={<Messages />} />
   <Route path="/CreateListing" element={<CreateListing currentUser={currentUser} setCurrentUser={setCurrentUser} />} />
+  <Route path="/EditListing/:id" element={<CreateListing currentUser={currentUser} />} />
   <Route path="/MyListings/:uid" element={<MyListings currentUser={currentUser} />}/>
 </Routes>
     </div>

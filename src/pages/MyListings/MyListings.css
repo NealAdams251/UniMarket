@@ -103,6 +103,21 @@
   background: #fff1f0;
 }
 
+.edit-listing-button {
+  width: 100%;
+  border: none;
+  background: transparent;
+  color: var(--text-primary);
+  text-align: left;
+  padding: 10px 12px;
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+.edit-listing-button:hover {
+  background: var(--background);
+}
+
 .my-listing-info {
   padding: 16px;
 }

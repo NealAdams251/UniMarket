@@ -5,7 +5,7 @@ import { supabase } from '../../lib/supabase'
 import Sidebar from '../../components/Sidebar/Sidebar'
 import { CONDITIONS } from '../../data/conditions'
 
-function ListingMenu({ listingId, onDelete, currentUser, setCurrentUser }) {
+function ListingMenu({ listingId, onEdit, onDelete }) {
   const [open, setOpen] = useState(false)
   const wrapperRef = useRef(null)
 
@@ -39,6 +39,18 @@ function ListingMenu({ listingId, onDelete, currentUser, setCurrentUser }) {
 
       {open && (
         <div className="listing-menu-dropdown">
+          <button
+            type="button"
+            className="edit-listing-button"
+            onClick={(e) => {
+                e.stopPropagation()
+                setOpen(false)
+                onEdit(listingId)
+            }}
+          >
+            Edit listing
+          </button>
+
           <button
             type="button"
             className="delete-listing-button"
@@ -261,6 +273,7 @@ function MyListings({ currentUser }) {
 
                     <ListingMenu
                       listingId={listing.id}
+                      onEdit={(id) => navigate(`/EditListing/${id}`)}
                       onDelete={handleDelete}
                     />
                   </div>
