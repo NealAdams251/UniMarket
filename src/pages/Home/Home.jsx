@@ -2,12 +2,11 @@ import './Home.css'
 import SearchItems from '../../components/SearchItems/SearchItems'
 import SearchPanel from '../../components/SearchPanel/SearchPanel'
 import ProfileMenu from '../../components/ProfileMenu/ProfileMenu'
-import ListingImage from '../../components/ListingImage/ListingImage'
+import ListingCard from '../../components/ListingCard/ListingCard'
 import { useListingFilters } from '../../hooks/useListingFilters'
-import { getListings, formatPrice, conditionLabel, timeAgo } from '../../lib/listings'
+import { getListings } from '../../lib/listings'
 import { useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
-import { supabase } from '../../lib/supabase'
 
 const SORT_OPTIONS = [
   { value: 'newest', label: 'Newest first' },
@@ -21,8 +20,6 @@ function Home({ currentUser, setCurrentUser }) {
   const [listings, setListings] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [selectedImage, setSelectedImage] = useState(null)
-  
 
   // Re-fetch whenever any filter in the URL changes.
   const filterKey = JSON.stringify(filters)
@@ -38,8 +35,6 @@ function Home({ currentUser, setCurrentUser }) {
 
   return (
     <div className="home-page">
-
-      {console.log('HOME CURRENT USER:', currentUser)}
 
       <SearchPanel />
 
@@ -98,54 +93,8 @@ function Home({ currentUser, setCurrentUser }) {
         )}
 
         <section className="items-list">
-          {listings.map((item) => (
-            <article
-              className="listing-card"
-              key={item.id}
-              tabIndex={0}
-              role="link"
-              aria-label={`${item.title}, ${formatPrice(item.price)}`}
-              onClick={() => navigate(`/ItemPage/${item.id}`)}
-              onKeyDown={(e) => { if (e.key === 'Enter') navigate(`/ItemPage/${item.id}`) }}
-            >
-              <div className="listing-left">
-                <div
-                  className="listing-image"
-                  onClick={(e) => {
-                    if (!item.images[0]) return
-                    e.stopPropagation()
-                    setSelectedImage(item.images[0])
-                  }}
-                >
-                  <ListingImage src={item.images[0]} alt={item.title} category={item.category} />
-                </div>
-                <p className="listing-price">{formatPrice(item.price)}</p>
-              </div>
-
-              <div className="listing-right">
-                <div className="listing-condition">
-                  <span>Condition</span>
-                  <strong>{conditionLabel(item.condition)}</strong>
-                </div>
-
-                <div className="listing-description">
-                  <h3>{item.title}</h3>
-                  <p>{item.description}</p>
-                </div>
-
-                <p className="listing-meta">
-                  📍 {item.meetupSpot} · {timeAgo(item.createdAt)}
-                </p>
-              </div>
-            </article>
-          ))}
+          {listings.map((item) => <ListingCard key={item.id} item={item} />)}
         </section>
-
-        {selectedImage && (
-          <div className="image-modal" onClick={() => setSelectedImage(null)}>
-            <img src={selectedImage} alt="Listing" onClick={(e) => e.stopPropagation()} />
-          </div>
-        )}
       </main>
     </div>
   )

@@ -1,6 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Raleway:ital,wght@0,100..900;1,100..900&display=swap');
 
-
 html,
 body,
 #root {
@@ -56,13 +55,11 @@ input {
     letter-spacing: -1px;
 }
 
-
 .subtitle {
     margin: 18px 0 0;
     color: var(--text-secondary);
     font-size: 14px;
 }
-
 
 /* Main */
 .home-main {
@@ -251,168 +248,13 @@ input {
     transform: translateY(-1px);
 }
 
-
 /* Item Grid */
-.items-grid {
-    display: grid;
-
-    grid-template-columns:
-        repeat(auto-fill, minmax(260px, 1fr));
-
-    gap: 24px;
-    margin: 20px 0px 0px 0px;
-}
 
 /* List Card */
-.listing-card {
-    background: var(--dark);
-
-    border: 1px solid var(--border);
-    border-radius: 20px;
-
-    overflow: hidden;
-
-    transition:
-        transform 0.2s ease,
-        box-shadow 0.2s ease;
-    cursor: pointer;
-}
-
-.listing-card:hover {
-    transform: translateY(-5px);
-
-    box-shadow: 0 12px 30px rgba(94, 86, 83, 0.14);
-}
 
 /* Image */
-.image-container {
-    height: 200px;
-    
-    position: relative;
-
-    background: var(--muted);
-}
-
-.image-container img {
-    width: 100%;
-    height: 100%;
-
-    object-fit: cover;
-}
 
 /* Listing Content */
-.listing-card {
-    display: grid;
-    grid-template-columns: 220px 1fr;
-    gap: 24px;
-
-    background: var(--surface);
-
-    border: 1px solid var(--border);
-    border-radius: 18px;
-
-    padding: 20px;
-
-    min-height: 260px;
-
-    box-shadow: 0 6px 20px rgba(36, 60, 76, 0.08);
-
-    transition:
-        transform 0.2s ease,
-        box-shadow 0.2s ease;
-}
-
-.listing-card:hover {
-    transform: translateY(-3px);
-
-    box-shadow: 0 12px 28px rgba(36, 60, 76, 0.14);
-}
-
-.listing-left {
-    display: flex;
-    flex-direction: column;
-}
-
-.listing-image {
-    width: 100%;
-    aspect-ratio: 4 / 3;
-    border: 1px solid var(--border);
-    overflow: hidden;
-    border-radius: 14px;
-    background: #F4F7F8;
-    cursor: zoom-in;
-}
-
-.listing-image img {
-    width: 100%;
-    height: 100%;
-    display: block;
-
-    object-fit: contain;
-}
-
-.listing-price {
-    margin: 24px 0 0;
-
-    font-size: 26px;
-    font-weight: 700;
-
-    color: var(--primary);
-}
-
-.listing-right {
-    display: flex;
-    flex-direction: column;
-    gap: 18px;
-}
-
-.listing-condition {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    padding-bottom: 14px;
-
-    border-bottom: 1px solid var(--border);
-}
-
-.listing-condition span {
-    color: var(--text-secondary);
-    font-size: 14px;
-}
-
-.listing-condition strong {
-    color: var(--text-primary);
-    font-size: 15px;
-}
-
-.listing-description {
-    flex: 1;
-    padding: 16px;
-    background: var(--background);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-}
-
-.listing-description h3 {
-    margin: 0 0 10px;
-    color: var(--text-primary);
-    font-size: 20px;
-}
-
-.listing-description p {
-    margin: 0;
-    color: var(--text-secondary);
-    line-height: 1.6;
-}
-
-.items-list {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 24px;
-    margin: 22px 0px 0px 0px;
-}
-
 
 /* Image pop up */
 .image-modal {
@@ -441,7 +283,6 @@ input {
     cursor: default;
     border: 1px solid var(--border);
 }
-
 
 /* Mobile */
 @media (max-width: 700px) {
@@ -478,36 +319,6 @@ input {
     padding: 0 14px;
   }
 
-  .items-grid {
-    grid-template-columns:
-      repeat(2, minmax(0, 1fr));
-
-    gap: 12px;
-  }
-
-  .image-container {
-    height: 150px;
-  }
-
-  .listing-content {
-    padding: 12px;
-  }
-
-  .listing-title-row {
-    display: block;
-  }
-
-  .price {
-    display: block;
-
-    margin-top: 6px;
-  }
-}
-
-@media (max-width: 480px) {
-  .items-grid {
-    grid-template-columns: 1fr;
-  }
 }
 
 /* Campus background and centered marketplace panel */
@@ -550,25 +361,7 @@ html, body {
     line-height: 1.15;
     overflow-wrap: anywhere;
 }
-.items-list {
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr));
-}
-.listing-card {
-    grid-template-columns: minmax(100px, 0.85fr) minmax(0, 1fr);
-    gap: 18px;
-    padding: 16px;
-}
-.listing-left, .listing-right {
-    min-width: 0;
-}
-.listing-description {
-    background: #F4FCFB;
-    overflow-wrap: anywhere;
-}
-.listing-condition {
-    flex-wrap: wrap;
-    gap: 8px;
-}
+
 .home-heading {
     justify-content: space-between;
     gap: 16px;
@@ -645,11 +438,7 @@ html, body {
         flex-wrap: wrap;
     }
 }
-@media (max-width: 480px) {
-    .listing-card {
-        grid-template-columns: minmax(0, 1fr);
-    }
-}
+
 /* Center the campus heading above the white panel. */
 .marketplace-shell {
     width: 100%;
@@ -903,7 +692,6 @@ html, body {
     display: flex;
 }
 
-
 .profile-menu {
     position: relative;
 }
@@ -970,7 +758,6 @@ html, body {
   align-items: center;
   gap: 12px;
 }
-
 
 @media (max-width: 1100px) {
     .home-heading {
@@ -1056,8 +843,7 @@ html, body {
     font-weight: 600;
     cursor: pointer;
 }
-.sort-control select:focus-visible,
-.listing-card:focus-visible {
+.sort-control select:focus-visible {
     outline: 2px solid #0064A4;
     outline-offset: 2px;
 }
@@ -1076,21 +862,7 @@ html, body {
 }
 
 /* ---- Listing card details ---- */
-.listing-image:not(:has(img)) {
-    cursor: pointer;
-}
-.listing-description p {
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-}
-.listing-meta {
-    margin: 0;
-    color: var(--text-secondary);
-    font-size: 13px;
-    text-align: left;
-}
+
 /* Full-width search with actions on the right (no section heading). */
 .home-heading {
     display: flex;
@@ -1128,6 +900,7 @@ html, body {
     background: #0064A4;
     color: var(--surface);
 }
+
 .price-range {
     display: flex;
     align-items: center;
