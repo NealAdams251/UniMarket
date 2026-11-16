@@ -5,7 +5,7 @@ import { supabase } from '../../lib/supabase'
 import Sidebar from '../../components/Sidebar/Sidebar'
 import { CONDITIONS } from '../../data/conditions'
 
-function ListingMenu({ listingId, onDelete, currentUser, setCurrentUser }) {
+function ListingMenu({ listingId, onDelete, currentUser, setCurrentUser, onMarkSold }) {
   const [open, setOpen] = useState(false)
   const wrapperRef = useRef(null)
 
@@ -38,19 +38,36 @@ function ListingMenu({ listingId, onDelete, currentUser, setCurrentUser }) {
       </button>
 
       {open && (
+
+
         <div className="listing-menu-dropdown">
+          <button
+            type="button"
+            className="sold-listing-button"
+            onClick={(e) => {
+              e.stopPropagation()
+              setOpen(false)
+              onMarkSold(listingId)
+            }}
+          >
+            Mark as Sold
+          </button>
+
           <button
             type="button"
             className="delete-listing-button"
             onClick={(e) => {
-                e.stopPropagation()
-                setOpen(false)
-                onDelete(listingId)
+              e.stopPropagation()
+              setOpen(false)
+              onDelete(listingId)
             }}
           >
-            Delete listing
+            Delete Listing
           </button>
         </div>
+
+
+
       )}
     </div>
   )
@@ -122,6 +139,33 @@ function MyListings({ currentUser }) {
       .getPublicUrl(sortedImages[0].storage_path)
 
     return data.publicUrl
+  }
+
+  async function handleMarkSold(listingId) {
+    const confirmed = window.confirm('Mark this listing as sold?')
+
+    if (!confirmed) return
+
+    const { error } = await supabase
+      .from('listings')
+      .update({
+        status: 'sold',
+      })
+      .eq('id', listingId)
+
+    if (error) {
+      console.error('Error marking listing as sold:', error)
+      setErrorMessage('Could not mark listing as sold.')
+      return
+    }
+
+    setListings((prevListings) =>
+      prevListings.map((listing) =>
+        listing.id === listingId
+          ? { ...listing, status: 'sold' }
+          : listing
+      )
+    )
   }
 
   async function handleDelete(listingId) {
@@ -262,6 +306,7 @@ function MyListings({ currentUser }) {
                     <ListingMenu
                       listingId={listing.id}
                       onDelete={handleDelete}
+                      onMarkSold={handleMarkSold}
                     />
                   </div>
 
