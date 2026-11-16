@@ -3,6 +3,9 @@ import { useState } from 'react'
 import './SignUp.css'
 import { supabase } from '../../lib/supabase'
 
+// Only UCI accounts can sign up (Supabase also only lets @uci.edu users post listings).
+const isUciEmail = (email) => /^[^\s@]+@uci\.edu$/i.test(email.trim())
+
 function SignUp() {
   const navigate = useNavigate()
 
@@ -21,6 +24,11 @@ function SignUp() {
       return
     }
 
+    if (!isUciEmail(email)) {
+      setErrorMessage('Please Use a UCI Email')
+      return
+    }
+
     if (password !== confirmPassword) {
       setErrorMessage('Passwords do not match.')
       return
@@ -29,7 +37,7 @@ function SignUp() {
     setLoading(true)
 
     const { data, error } = await supabase.auth.signUp({
-      email,
+      email: email.trim(),
       password,
     })
 
