@@ -10,6 +10,7 @@ import Settings from './pages/Settings/Settings'
 import Messages from './pages/Messages/Messages'
 import Friends from './pages/Friends/Friends'
 import MyListings from './pages/MyListings/MyListings'
+import WelcomePopup from './components/WelcomePopup/WelcomePopup'
 import './App.css'
 
 function MarketplaceLayout() {
@@ -64,6 +65,7 @@ function App() {
   return (
     <BrowserRouter>
       <MarketplaceLayout />
+      <WelcomePopup />
     </BrowserRouter>
   )
 }
