@@ -16,6 +16,7 @@ function ProfileMenu({ onSelect = () => {}, currentUser, setCurrentUser }) {
   const MENU_ITEMS = [
     { label: 'My Profile', action: () => navigate(`/profile/${currentUser?.uid}`) },
     { label: 'My Listings', action: () => navigate(`/MyListings/${currentUser?.uid}`) },
+    { label: 'Friends', action: () => navigate('/friends') },
     { label: 'Messages', action: () => navigate('/messages') },
     { label: 'Settings', action: () => navigate(isAuthenticated ? '/settings' : '/login') },
   ]

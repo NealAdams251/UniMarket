@@ -8,7 +8,9 @@ import ProfilePage from './pages/ProfilePage/ProfilePage'
 import CreateListing from './pages/CreateListing/CreateListing'
 import Settings from './pages/Settings/Settings'
 import Messages from './pages/Messages/Messages'
+import Friends from './pages/Friends/Friends'
 import MyListings from './pages/MyListings/MyListings'
+import WelcomePopup from './components/WelcomePopup/WelcomePopup'
 import './App.css'
 
 function MarketplaceLayout() {
@@ -51,6 +53,7 @@ const [currentUser, setCurrentUser] = useState(null)
   <Route path="/profile/:uid" element={<ProfilePage />} />
   <Route path="/messages" element={<Messages />} />
   <Route path="/messages/:conversationId" element={<Messages />} />
+  <Route path="/friends" element={<Friends />} />
   <Route path="/CreateListing" element={<CreateListing currentUser={currentUser} setCurrentUser={setCurrentUser} />} />
   <Route path="/EditListing/:id" element={<CreateListing currentUser={currentUser} />} />
   <Route path="/MyListings/:uid" element={<MyListings currentUser={currentUser} />}/>
@@ -63,6 +66,7 @@ function App() {
   return (
     <BrowserRouter>
       <MarketplaceLayout />
+      <WelcomePopup />
     </BrowserRouter>
   )
 }

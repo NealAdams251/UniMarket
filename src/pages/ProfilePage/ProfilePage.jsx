@@ -5,6 +5,14 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { getProfile, getListingsBySeller, formatPrice } from '../../lib/listings'
 import { startConversation } from '../../lib/messages'
+import {
+    getFriendshipStatus,
+    sendFriendRequest,
+    acceptFriendRequest,
+    declineFriendRequest,
+    removeFriend,
+    subscribeToFriendships,
+} from '../../lib/friends'
 import { useAuthUser } from '../../hooks/useAuthUser'
 import Sidebar from '../../components/Sidebar/Sidebar'
 
@@ -13,6 +21,35 @@ function Profile() {
     const navigate = useNavigate()
     const { user: me } = useAuthUser()
     const [opening, setOpening] = useState(false)
+
+    // Friend state with this profile: none | friends | incoming | outgoing
+    const [friendship, setFriendship] = useState({ uid: null, status: 'none' })
+    const [friendBusy, setFriendBusy] = useState(false)
+    const friendStatus = friendship.uid === uid ? friendship.status : null
+
+    useEffect(() => {
+        if (!me || me.id === uid) return
+        let ignore = false
+        const load = () => getFriendshipStatus(me.id, uid)
+            .then(status => { if (!ignore) setFriendship({ uid, status }) })
+            .catch(err => console.error('Failed to load friendship:', err))
+        load()
+        const unsubscribe = subscribeToFriendships(load)
+        return () => { ignore = true; unsubscribe() }
+    }, [me, uid])
+
+    async function changeFriendship(action) {
+        if (!me) { navigate('/login'); return }
+        setFriendBusy(true)
+        try {
+            await action(uid)
+            setFriendship({ uid, status: await getFriendshipStatus(me.id, uid) })
+        } catch (err) {
+            console.error('Friend action failed:', err)
+        } finally {
+            setFriendBusy(false)
+        }
+    }
 
     async function messageUser() {
         if (!me) { navigate('/login'); return }
@@ -88,9 +125,44 @@ function Profile() {
                     </div>
 
                     {me?.id !== uid && (
-                        <button type="button" className="profile-message-button" onClick={messageUser} disabled={opening}>
-                            {opening ? 'Opening…' : 'Message'}
-                        </button>
+                        <div className="profile-actions">
+                            {(!me || friendStatus === 'none') && (
+                                <button type="button" className="profile-friend-button" disabled={friendBusy}
+                                    onClick={() => changeFriendship(sendFriendRequest)}>
+                                    Add friend
+                                </button>
+                            )}
+                            {me && friendStatus === 'outgoing' && (
+                                <button type="button" className="profile-friend-button" disabled={friendBusy}
+                                    onClick={() => changeFriendship(removeFriend)} title="Cancel friend request">
+                                    Request sent ✕
+                                </button>
+                            )}
+                            {me && friendStatus === 'incoming' && (
+                                <>
+                                    <button type="button" className="profile-friend-button accept" disabled={friendBusy}
+                                        onClick={() => changeFriendship(acceptFriendRequest)}>
+                                        Accept request
+                                    </button>
+                                    <button type="button" className="profile-friend-button" disabled={friendBusy}
+                                        onClick={() => changeFriendship(declineFriendRequest)}>
+                                        Decline
+                                    </button>
+                                </>
+                            )}
+                            {me && friendStatus === 'friends' && (
+                                <button type="button" className="profile-friend-button" disabled={friendBusy}
+                                    onClick={() => {
+                                        if (window.confirm(`Remove ${user.displayName} from your friends?`)) changeFriendship(removeFriend)
+                                    }}
+                                    title="Remove friend">
+                                    ✓ Friends
+                                </button>
+                            )}
+                            <button type="button" className="profile-message-button" onClick={messageUser} disabled={opening}>
+                                {opening ? 'Opening…' : 'Message'}
+                            </button>
+                        </div>
                     )}
                 </div>
 
